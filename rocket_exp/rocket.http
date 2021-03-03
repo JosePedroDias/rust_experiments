@@ -1,0 +1,61 @@
+@host = http://127.0.0.1:8000
+
+####
+
+GET {{host}}/
+
+####
+
+GET {{host}}/hello/tony
+
+####
+
+GET {{host}}/page/one/two
+
+####
+
+GET {{host}}/hi
+    ?wave=one
+    &name=john
+####
+
+POST {{host}}/upload
+Content-Type: text/plain
+
+hello world
+
+####
+
+GET {{host}}/user
+
+####
+
+POST {{host}}/user
+Content-Type: application/json
+
+{
+    "name": "Rambo",
+    "age": 99
+}
+
+####
+
+GET {{host}}/delay/1
+
+####
+
+GET {{host}}/public/1.html
+
+####
+
+GET {{host}}/public/1.json
+
+####
+
+GET {{host}}/public/crab.png
+
+####
+
+GET {{host}}/404
+
+####
