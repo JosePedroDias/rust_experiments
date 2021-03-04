@@ -164,6 +164,8 @@ pub fn swap_pieces(pairs: &mut Vec<(Piece, Mesh)>, i0:usize, i1: usize, texture:
     //println!("piece 1: {:?}", p1);
     //println!("piece 2: {:?}", p2);
     //println!("------");
+    pairs[i0].0 = p1;
+    pairs[i1].0 = p2;
     pairs[i0].1 = quadi(&p1, &texture, &WHITE); // &random_color());
     pairs[i1].1 = quadi(&p2, &texture, &WHITE); // &random_color());
 }
