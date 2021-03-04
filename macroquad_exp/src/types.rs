@@ -1,5 +1,6 @@
 use macroquad::models::{Vertex, Mesh};
-use macroquad::color::{Color, WHITE};
+use macroquad::shapes::{draw_rectangle_lines};
+use macroquad::color::{Color, WHITE, MAGENTA};
 use macroquad::texture::Texture2D;
 use macroquad::rand::gen_range;
 use std::mem;
@@ -7,6 +8,8 @@ use std::mem;
 use crate::{vec2, vec3};
 
 pub type FPair = (f32, f32);
+
+pub type FullPiece = (Piece, Mesh, usize);
 
 pub fn generate_seed_piece(w:f32, h:f32, iw:f32, ih:f32) -> Piece {
     let ar = w / h;
@@ -77,6 +80,10 @@ pub fn quadi(p: &Piece, texture: &Texture2D, color: &Color) -> Mesh {
     quad(
         p.x0, p.y0, p.x1, p.y1, p.u0, p.v0, p.u1, p.v1, texture, color,
     )
+}
+
+pub fn rect_wireframe(p: &Piece) {
+    draw_rectangle_lines(p.x0, p.y0, p.x1 - p.x0, p.y1 - p.y0, 6.0, MAGENTA);
 }
 
 #[derive(Clone, Debug, Copy)]
@@ -154,43 +161,40 @@ pub fn random_color() -> Color {
     }
 }
 
-pub fn swap_pieces(pairs: &mut Vec<(Piece, Mesh)>, i0:usize, i1: usize, texture:&Texture2D) {
+pub fn swap_pieces(puzzle: &mut Vec<FullPiece>, i0:usize, i1: usize, texture:&Texture2D) {
     println!("swapping #{} #{}", i0, i1);
-    let mut p1 = pairs[i0].0;
-    let mut p2 = pairs[i1].0;
-    //println!("piece 1: {:?}", p1);
-    //println!("piece 2: {:?}", p2);
+    let mut p1 = puzzle[i0].0;
+    let mut p2 = puzzle[i1].0;
     swap_piece_uvs(&mut p1, &mut p2);
-    //println!("piece 1: {:?}", p1);
-    //println!("piece 2: {:?}", p2);
-    //println!("------");
-    pairs[i0].0 = p1;
-    pairs[i1].0 = p2;
-    pairs[i0].1 = quadi(&p1, &texture, &WHITE); // &random_color());
-    pairs[i1].1 = quadi(&p2, &texture, &WHITE); // &random_color());
+    puzzle[i0].0 = p1;
+    puzzle[i1].0 = p2;
+    puzzle[i0].1 = quadi(&p1, &texture, &WHITE); // &random_color());
+    puzzle[i1].1 = quadi(&p2, &texture, &WHITE); // &random_color());
+
+    // swap indices without delegating ownership
+    let tmp = puzzle[i0].2;
+    puzzle[i0].2 = puzzle[i1].2;
+    puzzle[i1].2 = tmp;
 }
 
-pub fn shuffle(times:usize, pairs: &mut Vec<(Piece, Mesh)>, texture:&Texture2D) {
-    let max_idx = pairs.len() - 1;
+pub fn shuffle(times:usize, puzzle: &mut Vec<FullPiece>, texture:&Texture2D) {
+    let max_idx = puzzle.len() - 1;
     for _ in 0..times { 
         let i0 = gen_range(0, max_idx);
         let i1 = gen_range(0, max_idx);
         if i0 != i1 {
-            swap_pieces(pairs, i0, i1, &texture);
+            swap_pieces(puzzle, i0, i1, &texture);
         }
     }
 }
 
-pub fn find_pair(pairs: &Vec<(Piece, Mesh)>, point: FPair) -> Option<usize> {
+pub fn find_full_piece(puzzle: &Vec<FullPiece>, point: FPair) -> Option<usize> {
     let (x, y) = point;
-    let mut i: usize = 0;
 
-    for (p, _) in pairs.iter() {
+    for (i, (p, _, _)) in puzzle.iter().enumerate() {
         if (p.x0..p.x1).contains(&x) && (p.y0..p.y1).contains(&y) {
-            //println!("found: {:?}", pairs[i].0);
             return Some(i);
         }
-        i += 1;
     }
     
     return None;
@@ -201,4 +205,13 @@ pub fn swap_piece_uvs(p1: &mut Piece, p2: &mut Piece) {
     mem::swap(&mut p1.u1, &mut p2.u1);
     mem::swap(&mut p1.v0, &mut p2.v0);
     mem::swap(&mut p1.v1, &mut p2.v1);
+}
+
+pub fn is_puzzle_solved(puzzle:&Vec<FullPiece>) -> bool {
+    for (i, (_, _, ii)) in puzzle.iter().enumerate() {
+        if &i != ii {
+            return false;
+        }
+    }
+    return true;
 }

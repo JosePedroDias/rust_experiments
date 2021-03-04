@@ -64,47 +64,55 @@ async fn main() {
         }
     }
 
-    let mut pairs: Vec<(Piece, Mesh)> = pieces
-        .iter()
-        .map(|p| (p.clone(), quadi(&p, &texture, &random_color())))
+    let mut puzzle: Vec<FullPiece> = pieces
+        .iter().enumerate()
+        .map(|(i, p)| (p.clone(), quadi(&p, &texture, &random_color()), i))
         .collect();
 
-    shuffle(30, &mut pairs, &texture);
+    shuffle(30, &mut puzzle, &texture);
 
     let mut last_selected_index: Option<usize> = None;
+    let mut _hovered_index: Option<usize> = None; // TODO WHY THE WARNING??
 
     loop {
         if is_key_pressed(KeyCode::Escape) {
             return;
         }
 
+        {
+            let p = mouse_position();
+            _hovered_index = find_full_piece(&puzzle, p);
+        }
+        
+
         if is_mouse_button_released(MouseButton::Left) {
             let p = mouse_position();
-            //println!("position: {:.0} {:.0}", p.0, p.1);
-            let idx = find_pair(&pairs, p).unwrap();
+            let idx = find_full_piece(&puzzle, p).unwrap(); // TODO HANDLE NONE
             if let Some(prev_idx) = last_selected_index {
-                //println!("trying to swap #{} #{}", prev_idx, idx);
                 if prev_idx != idx {
-                    swap_pieces(&mut pairs, prev_idx, idx, &texture);
+                    swap_pieces(&mut puzzle, prev_idx, idx, &texture);
                     last_selected_index = None;
                 }
             } else {
                 last_selected_index = Some(idx);
             }
-            println!("last_selected_index after: {:?}", last_selected_index);
+
+            if is_puzzle_solved(&puzzle) {
+                println!("PUZZLE SOLVED!");
+            }
         }
 
         clear_background(BLACK);
 
         set_default_camera();
 
-        let mp = mouse_position();
-
-        draw_circle(mp.0, mp.1, 5.0, BLUE);
-        draw_text(&format!("{:.0},{:.0}", mp.0, mp.1)[..], 0.0, 32.0, 32.0, GREEN);
-
-        for (_, m) in pairs.iter() {
+        for (_, m, _) in puzzle.iter() {
             draw_mesh(&m);
+        }
+
+        if let Some(lsi) = _hovered_index {
+            let q = puzzle[lsi].0;
+            rect_wireframe(&q);                
         }
 
         next_frame().await
