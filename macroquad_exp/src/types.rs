@@ -1,5 +1,5 @@
 use macroquad::models::{Vertex, Mesh};
-use macroquad::color::Color;
+use macroquad::color::{Color, WHITE};
 use macroquad::texture::Texture2D;
 use macroquad::rand::gen_range;
 use std::mem;
@@ -7,7 +7,6 @@ use std::mem;
 use crate::{vec2, vec3};
 
 pub type FPair = (f32, f32);
-pub type PMPair = (Piece, Mesh);
 
 pub fn generate_seed_piece(w:f32, h:f32, iw:f32, ih:f32) -> Piece {
     let ar = w / h;
@@ -80,7 +79,7 @@ pub fn quadi(p: &Piece, texture: &Texture2D, color: &Color) -> Mesh {
     )
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct Piece {
     pub x0: f32,
     pub x1: f32,
@@ -148,35 +147,56 @@ pub fn split(p: Piece, axis_index: usize, r: f32) -> (Piece, Piece) {
 
 pub fn random_color() -> Color {
     Color {
-        r: gen_range(0.33, 1.0),
-        g: gen_range(0.33, 1.0),
-        b: gen_range(0.33, 1.0),
+        r: gen_range(0.5, 1.0),
+        g: gen_range(0.5, 1.0),
+        b: gen_range(0.5, 1.0),
         a: 1.0,
     }
 }
 
+pub fn swap_pieces(pairs: &mut Vec<(Piece, Mesh)>, i0:usize, i1: usize, texture:&Texture2D) {
+    println!("swapping #{} #{}", i0, i1);
+    let mut p1 = pairs[i0].0;
+    let mut p2 = pairs[i1].0;
+    //println!("piece 1: {:?}", p1);
+    //println!("piece 2: {:?}", p2);
+    swap_piece_uvs(&mut p1, &mut p2);
+    //println!("piece 1: {:?}", p1);
+    //println!("piece 2: {:?}", p2);
+    //println!("------");
+    pairs[i0].1 = quadi(&p1, &texture, &WHITE); // &random_color());
+    pairs[i1].1 = quadi(&p2, &texture, &WHITE); // &random_color());
+}
+
+pub fn shuffle(times:usize, pairs: &mut Vec<(Piece, Mesh)>, texture:&Texture2D) {
+    let max_idx = pairs.len() - 1;
+    for _ in 0..times { 
+        let i0 = gen_range(0, max_idx);
+        let i1 = gen_range(0, max_idx);
+        if i0 != i1 {
+            swap_pieces(pairs, i0, i1, &texture);
+        }
+    }
+}
+
 pub fn find_pair(pairs: &Vec<(Piece, Mesh)>, point: FPair) -> Option<usize> {
-    let mut nearest_index: Option<usize> = None;
-    let mut nearest_dist: f32 = f32::MAX;
+    let (x, y) = point;
     let mut i: usize = 0;
+
     for (p, _) in pairs.iter() {
-        let dx = point.0 - (p.x1 - p.x0) / 2.0;
-        let dy = point.1 - (p.y1 - p.y0) / 2.0;
-        let dist = (dx * dx + dy * dy).sqrt();
-        if dist < nearest_dist {
-            nearest_index = Some(i);
-            nearest_dist = dist;
+        if (p.x0..p.x1).contains(&x) && (p.y0..p.y1).contains(&y) {
+            //println!("found: {:?}", pairs[i].0);
+            return Some(i);
         }
         i += 1;
     }
-    return nearest_index;
+    
+    return None;
 }
 
-pub fn replace_uvs_updating_meshes(p1: &mut PMPair, p2: &mut PMPair, texture: &Texture2D) {
-    mem::swap(&mut p1.0.u0, &mut p2.0.u0);
-    mem::swap(&mut p1.0.u1, &mut p2.0.u1);
-    mem::swap(&mut p1.0.v0, &mut p2.0.v0);
-    mem::swap(&mut p1.0.v1, &mut p2.0.v1);
-    p1.1 = quadi(&p1.0, &texture, &random_color());
-    p2.1 = quadi(&p2.0, &texture, &random_color());
+pub fn swap_piece_uvs(p1: &mut Piece, p2: &mut Piece) {
+    mem::swap(&mut p1.u0, &mut p2.u0);
+    mem::swap(&mut p1.u1, &mut p2.u1);
+    mem::swap(&mut p1.v0, &mut p2.v0);
+    mem::swap(&mut p1.v1, &mut p2.v1);
 }
