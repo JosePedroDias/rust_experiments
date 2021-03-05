@@ -132,7 +132,7 @@ checksum = "b7282d924be3275cec7f6756ff4121987bc6481325397dde6ba3e7802b1a8b1c"
 [[package]]
 name = "macroquad"
 version = "0.3.0-alpha.15"
-source = "git+https://github.com/not-fl3/macroquad#9f54da9a041be89ae5127d62a7537d89ed0ca0e6"
+source = "git+https://github.com/Deseteral/macroquad?branch=miniquad-macos-sokol-app-update#9fe2f24290abed8bb688a50ca47e2bfc93b62337"
 dependencies = [
  "bumpalo",
  "fontdue",
@@ -153,13 +153,12 @@ dependencies = [
 [[package]]
 name = "macroquad_macro"
 version = "0.1.2"
-source = "git+https://github.com/not-fl3/macroquad#9f54da9a041be89ae5127d62a7537d89ed0ca0e6"
+source = "git+https://github.com/Deseteral/macroquad?branch=miniquad-macos-sokol-app-update#9fe2f24290abed8bb688a50ca47e2bfc93b62337"
 
 [[package]]
 name = "miniquad"
 version = "0.3.0-alpha.26"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f93dc8b526b2d565063e819449f0e2e7d6acfbf638c9a14c017d5f6c57e3caf"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 dependencies = [
  "sapp-android",
  "sapp-darwin",
@@ -241,8 +240,7 @@ checksum = "658fa1faf7a4cc5f057c9ee5ef560f717ad9d8dc66d975267f709624d6e1ab88"
 [[package]]
 name = "sapp-android"
 version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cfc3238f9450dba929931ea554552355ff65c4ab2ffd5d291ca5dfcb7cd3193"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 dependencies = [
  "cc",
 ]
@@ -250,8 +248,7 @@ dependencies = [
 [[package]]
 name = "sapp-darwin"
 version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf0d38a22937236c2ad6b90a12656a1f307efb144b6d7516104d2169f1dc3b18"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 dependencies = [
  "cc",
 ]
@@ -259,8 +256,7 @@ dependencies = [
 [[package]]
 name = "sapp-dummy"
 version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66f1ad26a5b6c682b9ca27c66db9aa91002b8d98a82ac7101ded57285215a478"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 dependencies = [
  "libc",
 ]
@@ -268,8 +264,7 @@ dependencies = [
 [[package]]
 name = "sapp-ios"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "081e6e5261c9ac2e938979b6a854a53b439f065fc3c897205ce7e69d3028b4a9"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 dependencies = [
  "cc",
 ]
@@ -277,8 +272,7 @@ dependencies = [
 [[package]]
 name = "sapp-linux"
 version = "0.1.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "014328e7e348d068b6d655bd080ee0ca373321e59954eec8a865a87877b1d848"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 dependencies = [
  "libc",
 ]
@@ -286,14 +280,12 @@ dependencies = [
 [[package]]
 name = "sapp-wasm"
 version = "0.1.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38b0cfb71996396a4e04131b260f6e53a4783c4a818076b32dd76729ab59fa28"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 
 [[package]]
 name = "sapp-windows"
 version = "0.2.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74bf2c366504901527cdd5093d067f12f81250791a8187ddac90b2120832becb"
+source = "git+https://github.com/Deseteral/miniquad?branch=sokol-macos-update#33a409ae7ccfe33c5b3ccaef9873cfbf7d6d4158"
 dependencies = [
  "winapi",
 ]

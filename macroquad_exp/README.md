@@ -3,13 +3,11 @@
 ## Issues found in Mac / Linux:
 
 - resolution / first boot in fullscreen
-- frequency of mouse events (too many repeats?)
 - tinting of colors between triangle renders
-
+- frequency of mouse events (too many repeats?)
 
 ## TODO List:
 
-- defend against clicking without picking any piece
 - fix fullscreen issue?
 - fix tinting issue
 - display photo credits once puzzle is complete

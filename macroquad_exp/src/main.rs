@@ -9,14 +9,14 @@ use macroquad::prelude::*;
 fn window_conf() -> Conf {
     Conf {
         window_title: "focus point".to_owned(),
-        window_width: 1280,
-        window_height: 768,
+        //window_width: 1280,
+        //window_height: 768,
         //window_width: 2000,
         //window_height: 1500,
         //window_width: 3072,
         //window_height: 1920,
-        //fullscreen: true,
-        high_dpi: true,
+        fullscreen: true,
+        //high_dpi: true,
         ..Default::default()
     }
 }
@@ -45,14 +45,16 @@ async fn main() {
         _hovered_index = find_full_piece(&puzzle, p);
 
         if is_mouse_button_released(MouseButton::Left) {
-            let idx = find_full_piece(&puzzle, p).unwrap(); // TODO HANDLE NONE
-            if let Some(prev_idx) = last_selected_index {
-                if prev_idx != idx {
-                    swap_pieces(&mut puzzle, prev_idx, idx, &texture);
-                    last_selected_index = None;
+            let idx = find_full_piece(&puzzle, p);
+            if let Some(idx) = idx {
+                if let Some(prev_idx) = last_selected_index {
+                    if prev_idx != idx {
+                        swap_pieces(&mut puzzle, prev_idx, idx, &texture);
+                        last_selected_index = None;
+                    }
+                } else {
+                    last_selected_index = Some(idx);
                 }
-            } else {
-                last_selected_index = Some(idx);
             }
 
             if is_puzzle_solved(&puzzle) {
