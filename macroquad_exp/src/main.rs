@@ -11,10 +11,6 @@ fn window_conf() -> Conf {
         window_title: "focus point".to_owned(),
         //window_width: 1280,
         //window_height: 768,
-        //window_width: 2000,
-        //window_height: 1500,
-        //window_width: 3072,
-        //window_height: 1920,
         fullscreen: true,
         //high_dpi: true,
         ..Default::default()

@@ -2,14 +2,11 @@
 
 ## Issues found in Mac / Linux:
 
-- resolution / first boot in fullscreen
-- tinting of colors between triangle renders
+- resolution / first boot in fullscreen (had to use custom branch)
 - frequency of mouse events (too many repeats?)
 
 ## TODO List:
 
-- fix fullscreen issue?
-- fix tinting issue
 - display photo credits once puzzle is complete
 - animate or fade at piece swaps
 

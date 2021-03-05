@@ -9,18 +9,20 @@ use std::mem;
 
 use crate::{vec2, vec3};
 
-const N: usize = 30;
+const N: usize = 28;
 
 pub type FPair = (f32, f32);
 
 pub type FullPiece = (Piece, Mesh, usize);
 
 pub async fn elect_image() -> String {
-    let res = load_string("./images/images.txt").await;
-    let s = res.unwrap();
-    let images:Vec<&str> = s.split("\n").collect();
+    let images_folder = "images";
+    //let credits = load_string("./photo-credits.txt").await.unwrap(); // TODO display picture credits at the end
+    let images = load_string(&format!("./{}/images.txt", images_folder)[..]).await.unwrap();
+    let images:Vec<&str> = images.split("\n").collect();
     let image = images[gen_range(0, images.len()-1)];
-    return format!("images/{}", image);
+    //println!("[{}]", credits);
+    return format!("{}/{}", images_folder, image);
 }
 
 pub fn seed_with_clock() {

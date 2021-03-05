@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 #macroquad = "0.2.9"
-#macroquad = { git = "https://github.com/not-fl3/macroquad" }
-macroquad = { git = "https://github.com/Deseteral/macroquad", branch = "miniquad-macos-sokol-app-update" }
+macroquad = { git = "https://github.com/not-fl3/macroquad" }
+#macroquad = { git = "https://github.com/Deseteral/macroquad", branch = "miniquad-macos-sokol-app-update" }
+image = { version = "0.23.12", features = ["png", "jpeg"] }
