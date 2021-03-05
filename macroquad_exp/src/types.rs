@@ -31,17 +31,34 @@ pub fn seed_with_clock() {
     srand(seed_num);
 }
 
+/* fn heuristic_random(pieces:&Vec<Piece>) -> usize {
+    gen_range(0, pieces.len()-1)
+} */
+
+fn heuristic_having_largest_area(pieces:&Vec<Piece>) -> usize {
+    let mut bigger_area = 0.0f32;
+    let mut bigger_i:usize = 0;
+    for (i, p) in pieces.iter().enumerate() {
+        let area = (p.x1 - p.x0) * (p.y1 - p.y0);
+        if area > bigger_area {
+            bigger_area = area;
+            bigger_i = i;
+        }
+    }
+    return bigger_i;
+}
+
 pub fn generate_puzzle(w:f32, h: f32, texture: &Texture2D)-> Vec<FullPiece> {
     let iw = texture.width();
     let ih = texture.height();
 
-    let seed = generate_seed_piece(w, h, iw, ih);
-    let mut pieces = vec![seed];
+    let seed_piece = generate_seed_piece(w, h, iw, ih);
+    let mut pieces = vec![seed_piece];
 
     let mut step = 0;
 
     loop {
-        let one = pieces.remove(gen_range(0, pieces.len()-1));
+        let one = pieces.remove(heuristic_having_largest_area(&pieces));
 
         let w = one.x1 - one.x0;
         let h = one.y1 - one.y0;
