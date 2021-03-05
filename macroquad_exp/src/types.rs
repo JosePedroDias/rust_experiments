@@ -77,7 +77,7 @@ pub fn generate_puzzle(w:f32, h: f32, texture: &Texture2D)-> Vec<FullPiece> {
 
     let mut puzzle: Vec<FullPiece> = pieces
         .iter().enumerate()
-        .map(|(i, p)| (p.clone(), quadi(&p, &texture, &random_color()), i))
+        .map(|(i, p)| (p.clone(), quadi(&p, &texture), i))
         .collect();
 
     shuffle(30, &mut puzzle, &texture);
@@ -150,9 +150,9 @@ pub fn quad(
     }
 }
 
-pub fn quadi(p: &Piece, texture: &Texture2D, color: &Color) -> Mesh {
+pub fn quadi(p: &Piece, texture: &Texture2D) -> Mesh {
     quad(
-        p.x0, p.y0, p.x1, p.y1, p.u0, p.v0, p.u1, p.v1, texture, color,
+        p.x0, p.y0, p.x1, p.y1, p.u0, p.v0, p.u1, p.v1, texture, &WHITE,
     )
 }
 
@@ -226,15 +226,6 @@ pub fn split(p: Piece, axis_index: usize, r: f32) -> (Piece, Piece) {
     }
 }
 
-pub fn random_color() -> Color {
-    Color {
-        r: gen_range(0.5, 1.0),
-        g: gen_range(0.5, 1.0),
-        b: gen_range(0.5, 1.0),
-        a: 1.0,
-    }
-}
-
 pub fn swap_pieces(puzzle: &mut Vec<FullPiece>, i0:usize, i1: usize, texture:&Texture2D) {
     //println!("swapping #{} #{}", i0, i1);
     let mut p1 = puzzle[i0].0;
@@ -242,8 +233,8 @@ pub fn swap_pieces(puzzle: &mut Vec<FullPiece>, i0:usize, i1: usize, texture:&Te
     swap_piece_uvs(&mut p1, &mut p2);
     puzzle[i0].0 = p1;
     puzzle[i1].0 = p2;
-    puzzle[i0].1 = quadi(&p1, &texture, &WHITE); // &random_color());
-    puzzle[i1].1 = quadi(&p2, &texture, &WHITE); // &random_color());
+    puzzle[i0].1 = quadi(&p1, &texture);
+    puzzle[i1].1 = quadi(&p2, &texture);
 
     // swap indices without delegating ownership
     let tmp = puzzle[i0].2;

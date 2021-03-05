@@ -75,9 +75,6 @@ async fn main() {
             rect_wireframe(&q);                
         }
 
-        // TO PREVENT TINTING TO NEXT QUAD?
-        //draw_line(0.0, 0.0, 0.0, 0.0, 1.0, WHITE);
-
         next_frame().await
     }
 }
