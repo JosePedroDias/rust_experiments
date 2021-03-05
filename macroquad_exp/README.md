@@ -1,14 +1,21 @@
-- https://github.com/not-fl3/macroquad
-- https://docs.rs/macroquad/0.2.9/macroquad/
+# Porting Pandora's Box **Focus Point** game to Rust with Macroquad
+
+## Issues found in Mac / Linux:
+
+- resolution / first boot in fullscreen
+- frequency of mouse events (too many repeats?)
+- tinting of colors between triangle renders
 
 
-rg3d
-rapier - https://rapier.rs/
-kira 
-egui
-ggez
+## TODO List:
 
-actix web
-rocket 0.5 - https://github.com/SergioBenitez/Rocket
+- defend against clicking without picking any piece
+- fix fullscreen issue?
+- fix tinting issue
+- display photo credits once puzzle is complete
+- animate or fade at piece swaps
 
-simple mechanics - integrates with lua
+
+# Gameplay captures
+
+- [vimeo](https://vimeo.com/showcase/8210937)
