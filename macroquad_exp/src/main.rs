@@ -1,8 +1,10 @@
 mod types;
+mod shaders;
 
 pub use glam::*;
 
 use crate::types::*;
+use crate::shaders::*;
 
 use macroquad::prelude::*;
 
@@ -21,7 +23,8 @@ fn window_conf() -> Conf {
 async fn main() {
     seed_with_clock();
 
-    let image_path = elect_image().await;
+    //let image_path = elect_image().await;
+    let image_path = "images/1478451436_e52fe4f2d3_o.jpg";
     let texture: Texture2D = load_texture(&image_path[..]).await;
 
     let w = screen_width();
@@ -31,6 +34,8 @@ async fn main() {
 
     let mut last_selected_index: Option<usize> = None;
     let mut _hovered_index: Option<usize> = None; // TODO WHY THE WARNING??
+
+    let translucent_mat = create_material();
 
     loop {
         if is_key_pressed(KeyCode::Escape) {
@@ -62,14 +67,22 @@ async fn main() {
 
         set_default_camera();
 
+        //gl_use_material(translucent_mat);
+
         for (_, m, _) in puzzle.iter() {
             draw_mesh(&m);
         }
+
+        //gl_use_default_material();
 
         if let Some(lsi) = _hovered_index {
             let q = puzzle[lsi].0;
             rect_wireframe(&q);                
         }
+
+        let time = &get_elapsed_time(get_time())[..];
+        draw_text(time, 32.0, 52.0, 48.0, BLACK);
+        draw_text(time, 30.0, 50.0, 48.0, WHITE);
 
         next_frame().await
     }
