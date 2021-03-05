@@ -2,14 +2,71 @@ use macroquad::models::{Vertex, Mesh};
 use macroquad::shapes::{draw_rectangle_lines};
 use macroquad::color::{Color, WHITE, MAGENTA};
 use macroquad::texture::Texture2D;
-use macroquad::rand::gen_range;
+use macroquad::rand::{srand, gen_range};
+use macroquad::file::load_string;
+use std::time::{SystemTime, UNIX_EPOCH};
 use std::mem;
 
 use crate::{vec2, vec3};
 
+const N: usize = 30;
+
 pub type FPair = (f32, f32);
 
 pub type FullPiece = (Piece, Mesh, usize);
+
+pub async fn elect_image() -> String {
+    let res = load_string("./images/images.txt").await;
+    let s = res.unwrap();
+    let images:Vec<&str> = s.split("\n").collect();
+    let image = images[gen_range(0, images.len()-1)];
+    return format!("images/{}", image);
+}
+
+pub fn seed_with_clock() {
+    let seed_num: u64 = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    srand(seed_num);
+}
+
+pub fn generate_puzzle(w:f32, h: f32, texture: &Texture2D)-> Vec<FullPiece> {
+    let iw = texture.width();
+    let ih = texture.height();
+
+    let seed = generate_seed_piece(w, h, iw, ih);
+    let mut pieces = vec![seed];
+
+    let mut step = 0;
+
+    loop {
+        let one = pieces.remove(gen_range(0, pieces.len()-1));
+
+        let w = one.x1 - one.x0;
+        let h = one.y1 - one.y0;
+
+        let index = if w > h { 0 } else { 1 };
+        let ratio = gen_range(0.2, 0.8);
+        let (two, three) = split(one, index, ratio);
+        pieces.push(two);
+        pieces.push(three);
+
+        step += 1;
+        if step == N {
+            break;
+        }
+    }
+
+    let mut puzzle: Vec<FullPiece> = pieces
+        .iter().enumerate()
+        .map(|(i, p)| (p.clone(), quadi(&p, &texture, &random_color()), i))
+        .collect();
+
+    shuffle(30, &mut puzzle, &texture);
+
+    puzzle
+}
 
 pub fn generate_seed_piece(w:f32, h:f32, iw:f32, ih:f32) -> Piece {
     let ar = w / h;
@@ -162,7 +219,7 @@ pub fn random_color() -> Color {
 }
 
 pub fn swap_pieces(puzzle: &mut Vec<FullPiece>, i0:usize, i1: usize, texture:&Texture2D) {
-    println!("swapping #{} #{}", i0, i1);
+    //println!("swapping #{} #{}", i0, i1);
     let mut p1 = puzzle[i0].0;
     let mut p2 = puzzle[i1].0;
     swap_piece_uvs(&mut p1, &mut p2);
