@@ -1,4 +1,6 @@
 use macroquad::material::{load_material, Material, MaterialParams};
+use macroquad::prelude::*;
+use macroquad::window::miniquad::*;
 
 const DEFAULT_VS: &'static str = "#version 100
 attribute vec3 position;
@@ -28,33 +30,47 @@ precision lowp float;
 varying vec4 color;
 varying vec2 uv;
 
-uniform sampler2D tex;
+uniform sampler2D Texture;
+uniform float Ratio;
 
 void main() {
-    //gl_FragColor = texture2D(tex, uv);
+    //gl_FragColor = texture2D(Texture, uv);
 
-    //vec4 color = texture2D(tex, uv);
+    //vec4 color = texture2D(Texture, uv);
     //gl_FragColor = color;
+    //gl_FragColor.r = 0.0;
 
-    //vec3 color = texture2D(tex, uv).rgb * color.rgb;
-    //gl_FragColor = vec4(color, 1);
+    vec3 color = texture2D(Texture, uv).rgb * color.rgb;
+    gl_FragColor = vec4(color, Ratio);// 0.3
 
-    //gl_FragColor = vec4(1, 0, 1, 1);
+    //gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 }";
 
 pub fn create_material() -> Material {
-    load_material(
+    let mat = load_material(
         &DEFAULT_VS.to_string(),
         &DEFAULT_FS.to_string(),
         MaterialParams {
+            pipeline_params: PipelineParams {
+                color_blend: Some(BlendState::new(
+                    Equation::Add,
+                    BlendFactor::Value(BlendValue::SourceAlpha),
+                    BlendFactor::OneMinusValue(BlendValue::SourceAlpha))
+                ),
+                ..Default::default()
+            },
             uniforms: vec![
-                //("Center".to_owned(), UniformType::Float2)
+                ("Ratio".to_owned(), UniformType::Float1)
             ],
             textures: vec![
-                //"images/1478451436_e52fe4f2d3_o.jpg".to_owned()
+                //"Texture".to_owned() // this one is defined by Macroquad
             ],
             ..Default::default()
         },
     )
-    .unwrap()
+    .unwrap();
+
+    mat.set_uniform("Ratio", 1.0 as f32);
+
+    mat
 }

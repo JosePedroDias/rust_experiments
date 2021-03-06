@@ -23,8 +23,7 @@ fn window_conf() -> Conf {
 async fn main() {
     seed_with_clock();
 
-    //let image_path = elect_image().await;
-    let image_path = "images/1478451436_e52fe4f2d3_o.jpg";
+    let image_path = elect_image().await;
     let texture: Texture2D = load_texture(&image_path[..]).await;
 
     let w = screen_width();
@@ -67,13 +66,29 @@ async fn main() {
 
         set_default_camera();
 
-        //gl_use_material(translucent_mat);
+        for (i, (_, m, _)) in puzzle.iter().enumerate() {
+            let mut is_translucent = false;
 
-        for (_, m, _) in puzzle.iter() {
+            if _hovered_index.is_some() {
+                if _hovered_index.unwrap() == i {
+                    is_translucent = true;
+                }
+            }
+
+            if is_translucent {
+                gl_use_material(translucent_mat);
+                let ratio = ((get_time()*0.5) % 1.0).sin() as f32;
+                //let ratio = ((get_time()*3.0).sin() % 3.1415927) as f32;
+                //println!("{:.3}", ratio);
+                translucent_mat.set_uniform("Ratio", ratio);
+            }
+
             draw_mesh(&m);
-        }
 
-        //gl_use_default_material();
+            if is_translucent {
+                gl_use_default_material();
+            }
+        }
 
         if let Some(lsi) = _hovered_index {
             let q = puzzle[lsi].0;
