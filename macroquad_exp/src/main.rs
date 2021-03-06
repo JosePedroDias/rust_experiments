@@ -1,8 +1,10 @@
 mod types;
+mod shaders;
 
 pub use glam::*;
 
 use crate::types::*;
+use crate::shaders::*;
 
 use macroquad::prelude::*;
 
@@ -31,6 +33,8 @@ async fn main() {
 
     let mut last_selected_index: Option<usize> = None;
     let mut _hovered_index: Option<usize> = None; // TODO WHY THE WARNING??
+
+    let translucent_mat = create_material();
 
     loop {
         if is_key_pressed(KeyCode::Escape) {
@@ -62,14 +66,38 @@ async fn main() {
 
         set_default_camera();
 
-        for (_, m, _) in puzzle.iter() {
+        for (i, (_, m, _)) in puzzle.iter().enumerate() {
+            let mut is_translucent = false;
+
+            if _hovered_index.is_some() {
+                if _hovered_index.unwrap() == i {
+                    is_translucent = true;
+                }
+            }
+
+            if is_translucent {
+                gl_use_material(translucent_mat);
+                let ratio = ((get_time()*0.5) % 1.0).sin() as f32;
+                //let ratio = ((get_time()*3.0).sin() % 3.1415927) as f32;
+                //println!("{:.3}", ratio);
+                translucent_mat.set_uniform("Ratio", ratio);
+            }
+
             draw_mesh(&m);
+
+            if is_translucent {
+                gl_use_default_material();
+            }
         }
 
         if let Some(lsi) = _hovered_index {
             let q = puzzle[lsi].0;
             rect_wireframe(&q);                
         }
+
+        let time = &get_elapsed_time(get_time())[..];
+        draw_text(time, 32.0, 52.0, 48.0, BLACK);
+        draw_text(time, 30.0, 50.0, 48.0, WHITE);
 
         next_frame().await
     }

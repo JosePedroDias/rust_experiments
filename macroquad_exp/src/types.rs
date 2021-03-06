@@ -282,3 +282,7 @@ pub fn is_puzzle_solved(puzzle:&Vec<FullPiece>) -> bool {
     }
     return true;
 }
+
+pub fn get_elapsed_time(secs: f64) -> String {
+    format!("{:.1}", secs)
+}
