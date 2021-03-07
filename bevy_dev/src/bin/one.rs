@@ -109,7 +109,7 @@ fn setup(
         ..Default::default()
     });
 
-    let texture_handle = asset_server.load("branding/icon.png");
+    let texture_handle = asset_server.load("textures/bevy.png");
 
     commands
         // camera

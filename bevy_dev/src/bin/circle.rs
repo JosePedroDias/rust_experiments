@@ -29,7 +29,7 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let uv_tex = asset_server.load("textures/uv-test.png");
+    let uv_tex = asset_server.load("textures/uvs/1.png");
     let mesh = build_circle(12., 32);
 
     commands
