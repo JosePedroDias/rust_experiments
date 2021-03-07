@@ -14,6 +14,7 @@ https://github.com/bevyengine/bevy/blob/v0.4.0/examples/ecs/ecs_guide.rs
 https://github.com/bevyengine/bevy/blob/v0.4.0/examples/app/logs.rs
 https://github.com/bevyengine/bevy/blob/v0.4.0/examples/window/window_settings.rs
 https://github.com/bevyengine/bevy/blob/v0.4.0/examples/shader/mesh_custom_attribute.rs
+https://github.com/bevyengine/bevy/blob/main/crates/bevy_render/src/mesh/shape/torus.rs
 
 https://stackoverflow.com/questions/tagged/bevy
 https://www.reddit.com/r/bevy/
@@ -29,6 +30,7 @@ https://github.com/smokku/bevy_miniquad
 https://github.com/dimforge/bevy_rapier
 https://github.com/AmionSky/bevy_obj https://github.com/AmionSky/bevy_obj/blob/master/src/loader.rs
 https://github.com/frewsxcv/bevy-earcutr/ https://github.com/frewsxcv/bevy-earcutr/blob/master/src/lib.rs
+https://github.com/Nilirad/bevy_prototype_lyon/
 https://github.com/katharostech/bevy_assetio_zip
 https://github.com/smokku/bevy_networking_turbulence
 https://github.com/ncallaway/bevy_prototype_networking_laminar

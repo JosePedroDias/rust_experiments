@@ -6,12 +6,10 @@ use bevy::{
     prelude::*
 };
 
-/// This example illustrates how to create parent->child relationships between entities how parent transforms
-/// are propagated to their descendants
 fn main() {
     App::build()
         .add_resource(WindowDescriptor {
-            title: "bevy demo".to_string(),
+            title: "one".to_string(),
             width: 800.,
             height: 600.,
             // mode: WindowMode::BorderlessFullscreen,
@@ -114,6 +112,19 @@ fn setup(
     let texture_handle = asset_server.load("branding/icon.png");
 
     commands
+        // camera
+        .spawn(Camera3dBundle {
+            transform: Transform::from_translation(Vec3::new(5.0, 10.0, 10.0))
+                .looking_at(Vec3::default(), Vec3::unit_y()),
+            ..Default::default()
+        })
+
+        // light
+        .spawn(LightBundle {
+            transform: Transform::from_translation(Vec3::new(4.0, 5.0, -4.0)),
+            ..Default::default()
+        })
+        
         // plane
         .spawn(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
@@ -139,26 +150,18 @@ fn setup(
             });
         })
 
-        // light
-        .spawn(LightBundle {
-            transform: Transform::from_translation(Vec3::new(4.0, 5.0, -4.0)),
-            ..Default::default()
-        })
-
-        // camera
-        .spawn(Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(5.0, 10.0, 10.0))
-                .looking_at(Vec3::default(), Vec3::unit_y()),
-            ..Default::default()
-        })
-
         // 2d camera
-        .spawn(CameraUiBundle::default())
+        .spawn(Camera2dBundle::default())
 
         .spawn(SpriteBundle {
             material: materials2d.add(texture_handle.into()),
+            sprite: Sprite::new(Vec2::new(128.0, 128.0)),
+            transform: Transform::from_translation(Vec3::new(-200.0, 250.0, 0.0)),
             ..Default::default()
         })
+
+        // 2d camera - UI
+        .spawn(CameraUiBundle::default())
 
         // fps text
         .spawn(TextBundle {
