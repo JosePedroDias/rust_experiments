@@ -14,6 +14,7 @@ https://github.com/bevyengine/bevy/blob/v0.4.0/examples/ecs/ecs_guide.rs
 https://github.com/bevyengine/bevy/blob/v0.4.0/examples/app/logs.rs
 https://github.com/bevyengine/bevy/blob/v0.4.0/examples/window/window_settings.rs
 https://github.com/bevyengine/bevy/blob/v0.4.0/examples/shader/mesh_custom_attribute.rs
+https://github.com/bevyengine/bevy/blob/v0.4.0/examples/ecs/timers.rs
 https://github.com/bevyengine/bevy/blob/main/crates/bevy_render/src/mesh/shape/torus.rs
 
 https://stackoverflow.com/questions/tagged/bevy

@@ -4,7 +4,7 @@ use bevy::{prelude::*, render::mesh::Mesh};
 
 // RESOURCES
 
-struct Selection {
+struct GameState {
     tile_index: Option<usize>,
 }
 
@@ -23,7 +23,7 @@ fn cursor_system(
     ev_cursor: Res<Events<CursorMoved>>,
     mut evr_cursor: Local<EventReader<CursorMoved>>,
     wnds: Res<Windows>,
-    mut selection: ResMut<Selection>,
+    mut game_state: ResMut<GameState>,
     q_camera: Query<&Transform, With<MainCamera>>,
     q_tile: Query<&TileData, With<TileData>>,
 ) {
@@ -40,9 +40,9 @@ fn cursor_system(
 
     if pos_wld.is_some() {
         let pw = pos_wld.unwrap();
-        //eprintln!("World coords: {:.0} x {:.0}", pw.x, pw.y);
+        //println!("World coords: {:.0} x {:.0}", pw.x, pw.y);
 
-        let mut nearest_ti = 0;
+        let mut nearest_ti = None;
         let mut nearest_dist: f32 = std::f32::MAX;
 
         for td in q_tile.iter() {
@@ -56,18 +56,42 @@ fn cursor_system(
 
             if dist < nearest_dist {
                 nearest_dist = dist;
-                nearest_ti = ti;
+                nearest_ti = Some(ti);
             }
         }
 
-        println!("tile #{:?}", nearest_ti);
-        selection.tile_index = Some(nearest_ti);
+        if nearest_ti.is_some() && nearest_dist < 11500. {
+            if nearest_ti != game_state.tile_index {
+                println!("tile #{:?} {:.0}", nearest_ti, nearest_dist);
+                game_state.tile_index = nearest_ti;
+            }
+        } else if game_state.tile_index.is_some() {
+            println!("tile #NONE {:.0}", nearest_dist);
+            game_state.tile_index = None;
+        }
     }
 }
 
-fn mouse_click_system(mouse_button_input: Res<Input<MouseButton>>) {
+fn mouse_click_system(
+    commands: &mut Commands,
+    mouse_button_input: Res<Input<MouseButton>>,
+    mut game_state: ResMut<GameState>,
+    q_tile: Query<(Entity, &TileData), With<TileData>>,
+) {
     if mouse_button_input.pressed(MouseButton::Left) {
-        println!("left mouse currently pressed");
+        if game_state.tile_index.is_some() {
+            let ti = game_state.tile_index.unwrap();
+            //println!("trying to kill #{}", ti);
+
+            for (entity, td) in q_tile.iter() {
+                if td.index == ti {
+                    println!("KILLING #{}!", ti);
+                    commands.despawn(entity);
+                }
+            }
+
+            game_state.tile_index = None;
+        }
     }
 }
 
@@ -127,7 +151,7 @@ fn setup(
 
 fn main() {
     App::build()
-        .add_resource(Selection { tile_index: None })
+        .add_resource(GameState { tile_index: None })
         .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.4)))
         .add_resource(WindowDescriptor {
             title: "quad_uvs".to_string(),
