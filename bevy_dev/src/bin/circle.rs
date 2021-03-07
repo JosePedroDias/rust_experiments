@@ -1,4 +1,4 @@
-use bevy_dev::quad_mesh::build_quad;
+use bevy_dev::circle_mesh::build_circle;
 
 use bevy::{
     prelude::*,
@@ -30,7 +30,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let uv_tex = asset_server.load("textures/uv-test.png");
-    let mesh = build_quad(20., 20.);
+    let mesh = build_circle(12., 32);
 
     commands
         .spawn(Camera2dBundle::default())
@@ -38,7 +38,7 @@ fn setup(
         .spawn(SpriteBundle {
             mesh: meshes.add(mesh),
             material: materials.add(uv_tex.clone().into()),
-            sprite: Sprite::new(Vec2::new(20., 20.)),
+            sprite: Sprite::new(Vec2::new(24., 24.)),
             transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
             ..Default::default()
         });

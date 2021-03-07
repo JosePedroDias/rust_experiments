@@ -1,5 +1,4 @@
 use bevy::{
-    //prelude::*,
     render::pipeline::PrimitiveTopology,
     render::mesh::{Indices, Mesh},
 };
@@ -12,16 +11,14 @@ use bevy::{
    2     3
              +X
 */
-pub fn quad() -> Mesh {
+pub fn build_quad(width: f32, height: f32) -> Mesh {
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
     let n_vertices = 4;
     let n_indices = 6;
 
-    let w = 20.;
-    let h = 20.;
-    let w2 = w / 2.0;
-    let h2 = h / 2.0;
+    let w2 = width / 2.0;
+    let h2 = height / 2.0;
 
     let mut positions: Vec<[f32; 3]> = Vec::with_capacity(n_vertices);
     let mut normals: Vec<[f32; 3]> = Vec::with_capacity(n_vertices);
