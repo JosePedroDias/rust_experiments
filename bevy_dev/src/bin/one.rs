@@ -29,17 +29,14 @@ fn main() {
         .run();
 }
 
-/// this component indicates what entities should rotate
 struct Rotator;
 
-/// rotates the parent, which will result in the child also rotating
 fn rotator_system(time: Res<Time>, mut query: Query<&mut Transform, With<Rotator>>) {
     for mut transform in query.iter_mut() {
         transform.rotation *= Quat::from_rotation_x(3.0 * time.delta_seconds());
     }
 }
 
-/// This system prints 'A' key state
 fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>) {
     if keyboard_input.pressed(KeyCode::A) {
         println!("'A' currently pressed");
