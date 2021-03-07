@@ -7,6 +7,14 @@ use bevy::{
     }
 };
 
+// RESOURCES
+
+struct Selection {
+    tile_index: Option<usize>
+}
+
+// WITHS
+
 struct MainCamera;
 
 struct TileIndex {
@@ -17,10 +25,13 @@ struct Translator {
     tr: Vec3
 }
 
+// SYSTEMS
+
 fn cursor_system(
     ev_cursor: Res<Events<CursorMoved>>,
     mut evr_cursor: Local<EventReader<CursorMoved>>,
     wnds: Res<Windows>,
+    mut selection: ResMut<Selection>,
     q_camera: Query<&Transform, With<MainCamera>>,
     q_tile_index: Query<(&TileIndex, &Translator), With<TileIndex>>
 ) {
@@ -58,25 +69,11 @@ fn cursor_system(
         }
 
         println!("tile #{:?}", nearest_ti);
+        selection.tile_index = Some(nearest_ti);
     }
 }
 
-fn main() {
-    App::build()
-        .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.4)))
-        .add_resource(WindowDescriptor {
-            title: "quad_uvs".to_string(),
-            width: 800.,
-            height: 600.,
-            vsync: true,
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins)
-        .add_startup_system(setup.system())
-        .add_system(cursor_system.system())
-        .add_system(bevy::input::system::exit_on_esc_system.system())
-        .run();
-}
+// SETUP (STARTUP SYSTEM)
 
 fn setup(
     commands: &mut Commands,
@@ -125,4 +122,24 @@ fn setup(
             ti += 1;
         }
     }
+}
+
+// MAIN
+
+fn main() {
+    App::build()
+        .add_resource(Selection { tile_index: None })
+        .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.4)))
+        .add_resource(WindowDescriptor {
+            title: "quad_uvs".to_string(),
+            width: 800.,
+            height: 600.,
+            vsync: true,
+            ..Default::default()
+        })
+        .add_plugins(DefaultPlugins)
+        .add_startup_system(setup.system())
+        .add_system(cursor_system.system())
+        .add_system(bevy::input::system::exit_on_esc_system.system())
+        .run();
 }
