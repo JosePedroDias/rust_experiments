@@ -12,12 +12,9 @@ struct Selection {
 
 struct MainCamera;
 
-struct TileIndex {
+struct TileData {
     index: usize,
-}
-
-struct Translator {
-    tr: Vec3,
+    center: Vec3,
 }
 
 // SYSTEMS
@@ -28,7 +25,7 @@ fn cursor_system(
     wnds: Res<Windows>,
     mut selection: ResMut<Selection>,
     q_camera: Query<&Transform, With<MainCamera>>,
-    q_tile_index: Query<(&TileIndex, &Translator), With<TileIndex>>,
+    q_tile: Query<&TileData, With<TileData>>,
 ) {
     let camera_transform = q_camera.iter().next().unwrap();
     let mut pos_wld: Option<Vec4> = None;
@@ -48,13 +45,13 @@ fn cursor_system(
         let mut nearest_ti = 0;
         let mut nearest_dist: f32 = std::f32::MAX;
 
-        for (tile_index, translator) in q_tile_index.iter() {
-            let ti = tile_index.index;
-            let tr = translator.tr;
+        for td in q_tile.iter() {
+            let ti = td.index;
+            let center = td.center;
             //println!("{:?} {:?}", ti, tr);
 
-            let dx = tr.x - pw.x;
-            let dy = tr.y - pw.y;
+            let dx = center.x - pw.x;
+            let dy = center.y - pw.y;
             let dist = dx * dx + dy * dy;
 
             if dist < nearest_dist {
@@ -101,7 +98,7 @@ fn setup(
         for iw in 0..W {
             let u0 = (iw as f32) * 1.0 / (W as f32);
             let v0 = (ih as f32) * 1.0 / (H as f32);
-            let translation = Vec3::new(
+            let center = Vec3::new(
                 (-0.5 + ((iw as f32) + 0.5) * du) * w,
                 (0.5 - ((ih as f32) + 0.5) * dv) * h,
                 0.,
@@ -114,11 +111,13 @@ fn setup(
                         size: Vec2::new(1., 1.),
                         resize_mode: SpriteResizeMode::Manual,
                     },
-                    transform: Transform::from_translation(translation.clone()),
+                    transform: Transform::from_translation(center.clone()),
                     ..Default::default()
                 })
-                .with(TileIndex { index: ti })
-                .with(Translator { tr: translation });
+                .with(TileData {
+                    index: ti,
+                    center: center,
+                });
             ti += 1;
         }
     }
