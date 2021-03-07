@@ -78,13 +78,25 @@ fn main() {
 }
 */
 
-use genawaiter::sync::{Gen, GenBoxed};
+// https://crates.io/crates/genawaiter
+// https://docs.rs/genawaiter/0.99.1/genawaiter/
+// https://github.com/whatisaphone/genawaiter
 
-fn countdown(start: i32) -> GenBoxed<i32> {
+//use genawaiter::sync::{Gen, GenBoxed};
+
+/* fn linear_gen(start_t: f32, start_v:f32, end_v:f32, duration:f32) -> GenBoxed<f32> {
+    let start_t = start_t;
+    let end_t = start_v + duration;
+    let mut t = start_t;
+    let mut v = start_v;
+
+    let mut generator = gen!({
+        yield_!(10);
+    });
+
     Gen::new_boxed(|co| {
-        let mut i: i32;
-        i = start;
         async move {
+            t = co.yield_(v).await;
             loop {
                 if i == 0 {
                     return;
@@ -96,10 +108,98 @@ fn countdown(start: i32) -> GenBoxed<i32> {
             }
         }
     })
-}
+} */
+
+// https://github.com/whatisaphone/genawaiter/blob/master/tests/sync.rs
+
+/* use genawaiter::{sync::gen, yield_, GeneratorState};
 
 fn main() {
-    for n in countdown(10) {
-        println!("{}", n);
-    }    
+    let mut gen = gen!({
+        let a = yield_!(10_u8);
+        println!("gen got {}", a);
+
+        let a = yield_!(20_u8);
+        println!("gen got {}", a);
+
+        let a = yield_!(30_u8);
+        println!("gen got {}", a);
+    });
+
+    // 1st call
+
+    let v = gen.resume_with("ignored");
+
+    if let GeneratorState::Yielded(num) = v {
+        println!("xxx {}", num)
+    }
+
+    match v {
+        GeneratorState::Yielded(num) => println!("yyy {}", num),
+        GeneratorState::Complete(()) => ()
+    }
+
+    assert_eq!(v, GeneratorState::Yielded(10_u8));
+
+    // 2nd call
+
+    let v = gen.resume_with("b");
+    assert_eq!(v, GeneratorState::Yielded(20_u8));
+
+    // 3rd call
+    
+    let v = gen.resume_with("c");
+    assert_eq!(v, GeneratorState::Yielded(30_u8));
+
+    // 4th call
+
+    let v = gen.resume_with("d");
+    assert_eq!(v, GeneratorState::Complete(()));
+}
+ */
+
+use genawaiter::{sync::gen, yield_, GeneratorState};
+
+// TODO make generator be parameterizable (wrap it inside a function)
+fn main() {
+    let mut gen = gen!({
+        let a = yield_!(10_u8);
+        println!("gen got {}", a);
+
+        let a = yield_!(20_u8);
+        println!("gen got {}", a);
+
+        let a = yield_!(30_u8);
+        println!("gen got {}", a);
+    });
+
+    // 1st call
+
+    let v = gen.resume_with("ignored");
+
+    if let GeneratorState::Yielded(num) = v {
+        println!("xxx {}", num)
+    }
+
+    match v {
+        GeneratorState::Yielded(num) => println!("yyy {}", num),
+        GeneratorState::Complete(()) => ()
+    }
+
+    assert_eq!(v, GeneratorState::Yielded(10_u8));
+
+    // 2nd call
+
+    let v = gen.resume_with("b");
+    assert_eq!(v, GeneratorState::Yielded(20_u8));
+
+    // 3rd call
+    
+    let v = gen.resume_with("c");
+    assert_eq!(v, GeneratorState::Yielded(30_u8));
+
+    // 4th call
+
+    let v = gen.resume_with("d");
+    assert_eq!(v, GeneratorState::Complete(()));
 }
