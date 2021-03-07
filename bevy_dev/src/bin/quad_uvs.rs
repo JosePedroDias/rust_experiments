@@ -1,16 +1,11 @@
 use bevy_dev::quad_mesh::build_quad_uvs;
 
-use bevy::{
-    prelude::*,
-    render::{
-        mesh::{Mesh},
-    }
-};
+use bevy::{prelude::*, render::mesh::Mesh};
 
 // RESOURCES
 
 struct Selection {
-    tile_index: Option<usize>
+    tile_index: Option<usize>,
 }
 
 // WITHS
@@ -18,11 +13,11 @@ struct Selection {
 struct MainCamera;
 
 struct TileIndex {
-    index: usize
+    index: usize,
 }
 
 struct Translator {
-    tr: Vec3
+    tr: Vec3,
 }
 
 // SYSTEMS
@@ -33,10 +28,10 @@ fn cursor_system(
     wnds: Res<Windows>,
     mut selection: ResMut<Selection>,
     q_camera: Query<&Transform, With<MainCamera>>,
-    q_tile_index: Query<(&TileIndex, &Translator), With<TileIndex>>
+    q_tile_index: Query<(&TileIndex, &Translator), With<TileIndex>>,
 ) {
     let camera_transform = q_camera.iter().next().unwrap();
-    let mut pos_wld:Option<Vec4> = None;
+    let mut pos_wld: Option<Vec4> = None;
 
     for ev in evr_cursor.iter(&ev_cursor) {
         let wnd = wnds.get(ev.id).unwrap();
@@ -51,7 +46,7 @@ fn cursor_system(
         //eprintln!("World coords: {:.0} x {:.0}", pw.x, pw.y);
 
         let mut nearest_ti = 0;
-        let mut nearest_dist:f32 = std::f32::MAX;
+        let mut nearest_dist: f32 = std::f32::MAX;
 
         for (tile_index, translator) in q_tile_index.iter() {
             let ti = tile_index.index;
@@ -60,7 +55,7 @@ fn cursor_system(
 
             let dx = tr.x - pw.x;
             let dy = tr.y - pw.y;
-            let dist = dx*dx + dy*dy;
+            let dist = dx * dx + dy * dy;
 
             if dist < nearest_dist {
                 nearest_dist = dist;
@@ -70,6 +65,12 @@ fn cursor_system(
 
         println!("tile #{:?}", nearest_ti);
         selection.tile_index = Some(nearest_ti);
+    }
+}
+
+fn mouse_click_system(mouse_button_input: Res<Input<MouseButton>>) {
+    if mouse_button_input.pressed(MouseButton::Left) {
+        println!("left mouse currently pressed");
     }
 }
 
@@ -87,17 +88,15 @@ fn setup(
     let s = 0.33;
     let w = img_w * s;
     let h = img_h * s;
-    
 
-    commands.spawn(Camera2dBundle::default())
-        .with(MainCamera);
+    commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
-    const W:usize = 4;
-    const H:usize = 3;
+    const W: usize = 4;
+    const H: usize = 3;
 
     let du = 1.0 / W as f32;
     let dv = 1.0 / H as f32;
-    let mut ti:usize = 0;
+    let mut ti: usize = 0;
     for ih in 0..H {
         for iw in 0..W {
             let u0 = (iw as f32) * 1.0 / (W as f32);
@@ -105,20 +104,21 @@ fn setup(
             let translation = Vec3::new(
                 (-0.5 + ((iw as f32) + 0.5) * du) * w,
                 (0.5 - ((ih as f32) + 0.5) * dv) * h,
-                0.
+                0.,
             );
-            commands.spawn(SpriteBundle {
-                mesh: meshes.add(build_quad_uvs(w*du, h*dv, u0, u0 + du, v0, v0 + dv)),
-                material: materials.add(img_tex.clone().into()),
-                sprite: Sprite {
-                    size: Vec2::new(1., 1.),
-                    resize_mode: SpriteResizeMode::Manual
-                },
-                transform: Transform::from_translation(translation.clone()),
-                ..Default::default()
-            })
-            .with(TileIndex { index: ti })
-            .with(Translator { tr: translation });
+            commands
+                .spawn(SpriteBundle {
+                    mesh: meshes.add(build_quad_uvs(w * du, h * dv, u0, u0 + du, v0, v0 + dv)),
+                    material: materials.add(img_tex.clone().into()),
+                    sprite: Sprite {
+                        size: Vec2::new(1., 1.),
+                        resize_mode: SpriteResizeMode::Manual,
+                    },
+                    transform: Transform::from_translation(translation.clone()),
+                    ..Default::default()
+                })
+                .with(TileIndex { index: ti })
+                .with(Translator { tr: translation });
             ti += 1;
         }
     }
@@ -140,6 +140,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup.system())
         .add_system(cursor_system.system())
+        .add_system(mouse_click_system.system())
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .run();
 }
