@@ -6,6 +6,8 @@ use bevy::{prelude::*, render::mesh::Mesh};
 
 struct GameState {
     tile_index: Option<usize>,
+    image_dims: Vec2,
+    image_path: String,
 }
 
 // WITHS
@@ -74,8 +76,11 @@ fn cursor_system(
 
 fn mouse_click_system(
     commands: &mut Commands,
+    asset_server: Res<AssetServer>,
     mouse_button_input: Res<Input<MouseButton>>,
     mut game_state: ResMut<GameState>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     q_tile: Query<(Entity, &TileData), With<TileData>>,
 ) {
     if mouse_button_input.pressed(MouseButton::Left) {
@@ -85,8 +90,50 @@ fn mouse_click_system(
 
             for (entity, td) in q_tile.iter() {
                 if td.index == ti {
+                    println!("{:?}", entity);
                     println!("KILLING #{}!", ti);
                     commands.despawn(entity);
+
+                    // TODO temporary spawn
+                    let img_tex = asset_server.load(&game_state.image_path[..]);
+                    let (w, h) = game_state.image_dims.into();
+                    const W: usize = 4;
+                    const H: usize = 3;
+                    let du = 1.0 / W as f32;
+                    let dv = 1.0 / H as f32;
+                    let iw = 0.5;
+                    let ih = 1.2;
+
+                    let u0 = (iw as f32) * 1.0 / (W as f32);
+                    let v0 = (ih as f32) * 1.0 / (H as f32);
+                    let center = Vec3::new(
+                        (-0.5 + ((iw as f32) + 0.5) * du) * w,
+                        (0.5 - ((ih as f32) + 0.5) * dv) * h,
+                        0.,
+                    );
+
+                    commands
+                        .spawn(SpriteBundle {
+                            mesh: meshes.add(build_quad_uvs(
+                                w * du,
+                                h * dv,
+                                u0,
+                                u0 + du,
+                                v0,
+                                v0 + dv,
+                            )),
+                            material: materials.add(img_tex.clone().into()),
+                            sprite: Sprite {
+                                size: Vec2::new(1., 1.),
+                                resize_mode: SpriteResizeMode::Manual,
+                            },
+                            transform: Transform::from_translation(center.clone()),
+                            ..Default::default()
+                        })
+                        .with(TileData {
+                            index: ti,
+                            center: center,
+                        });
                 }
             }
 
@@ -100,15 +147,12 @@ fn mouse_click_system(
 fn setup(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
+    game_state: Res<GameState>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let img_tex = asset_server.load("textures/images/23364494180_b99e33a74d_k.jpg");
-    let img_w = 2048.;
-    let img_h = 1135.;
-    let s = 0.33;
-    let w = img_w * s;
-    let h = img_h * s;
+    let (w, h) = game_state.image_dims.into();
+    let img_tex = asset_server.load(&game_state.image_path[..]);
 
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
@@ -150,8 +194,16 @@ fn setup(
 // MAIN
 
 fn main() {
+    let image_path = "textures/images/23364494180_b99e33a74d_k.jpg";
+    let mut image_dims = Vec2::new(2048., 1135.);
+    image_dims *= 0.33;
+
     App::build()
-        .add_resource(GameState { tile_index: None })
+        .add_resource(GameState {
+            tile_index: None,
+            image_dims,
+            image_path: String::from(image_path),
+        })
         .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.4)))
         .add_resource(WindowDescriptor {
             title: "quad_uvs".to_string(),
