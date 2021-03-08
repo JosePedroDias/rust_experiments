@@ -25,7 +25,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let uv_tex = asset_server.load("textures/uvs/1.png");
-    let mesh = build_quad(20., 20.);
+    let mesh = build_quad(Vec2::new(20., 20.));
 
     commands
         .spawn(Camera2dBundle::default())

@@ -40,7 +40,8 @@ struct MainCamera;
 struct TileData {
     index: usize,
     center: Vec3,
-    mesh_params: (f32, f32, f32, f32, f32, f32),
+    dims: Vec2,
+    uvs: (f32, f32, f32, f32),
 }
 
 // SYSTEMS
@@ -142,17 +143,18 @@ fn mouse_click_system(
         let mut td1 = td1.unwrap();
         let mut td2 = td2.unwrap();
 
-        mem::swap(&mut td1.mesh_params.2, &mut td2.mesh_params.2);
-        mem::swap(&mut td1.mesh_params.3, &mut td2.mesh_params.3);
-        mem::swap(&mut td1.mesh_params.4, &mut td2.mesh_params.4);
-        mem::swap(&mut td1.mesh_params.5, &mut td2.mesh_params.5);
+        mem::swap(&mut td1.uvs.0, &mut td2.uvs.0);
+        mem::swap(&mut td1.uvs.1, &mut td2.uvs.1);
+        mem::swap(&mut td1.uvs.2, &mut td2.uvs.2);
+        mem::swap(&mut td1.uvs.3, &mut td2.uvs.3);
 
         let tds = [td1, td2];
         for td in tds.iter() {
             let img_tex = asset_server.load(&game_state.image_path[..]);
             let mat = materials.add(img_tex.into());
-            let m = td.mesh_params.clone();
-            let mesh = meshes.add(build_quad_uvs(m.0, m.1, m.2, m.3, m.4, m.5));
+            let dims = td.dims.clone();
+            let uvs = td.uvs.clone();
+            let mesh = meshes.add(build_quad_uvs(dims, uvs));
             commands
                 .spawn(generate_tile_bundle(mesh, mat, td.center))
                 .with(td.clone());
@@ -191,11 +193,14 @@ fn setup(
                 (0.5 - ((ih as f32) + 0.5) * dv) * h,
                 0.,
             );
-            let mesh = meshes.add(build_quad_uvs(tw, th, u0, u1, v0, v1));
+            let dims = Vec2::new(tw, th);
+            let uvs = (u0, u1, v0, v1);
+            let mesh = meshes.add(build_quad_uvs(dims, uvs));
             let td = TileData {
                 center,
                 index: ti,
-                mesh_params: (tw, th, u0, u1, v0, v1),
+                dims,
+                uvs,
             };
             commands
                 .spawn(generate_tile_bundle(mesh, mat.clone(), center))
