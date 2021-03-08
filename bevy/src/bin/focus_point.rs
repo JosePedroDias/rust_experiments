@@ -1,5 +1,6 @@
 use bevy::{prelude::*, render::mesh::Mesh};
 use bevy_dev::{image_metadatas::select_random_image, quad_mesh::build_quad_uvs};
+use open;
 use std::mem;
 
 const W: usize = 10;
@@ -38,6 +39,7 @@ struct GameState {
     image_dims: Vec2,
     image_path: String,
     image_credits: String,
+    image_url: String,
     material_handle: Option<Handle<ColorMaterial>>,
 }
 
@@ -157,7 +159,7 @@ fn mouse_click_system(
         game_state.hovered_entity = None;
 
         if ent1 == ent2 {
-            //println!("clock 2 -> SAME TILES!");
+            open::that(game_state.image_url.clone()).ok(); // TODO TEMPORARY
             return;
         }
 
@@ -277,7 +279,7 @@ fn setup(
 
 fn main() {
     let screen_dims: Vec2 = Vec2::new(1024., 768.);
-    static BEFORE_UPDATE: &str = "BEFORE_UPDATE";
+    //static BEFORE_UPDATE: &str = "BEFORE_UPDATE";
 
     let image_md = select_random_image();
     //println!("{:?}", image_md);
@@ -293,6 +295,7 @@ fn main() {
             material_handle: None,
             image_dims,
             image_path,
+            image_url: image_md.url,
             image_credits: format!("{} by {}", image_md.title, image_md.author),
         })
         .add_resource(ClearColor(Color::rgb(0.05, 0.05, 0.02)))
@@ -304,10 +307,10 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
-        .add_stage_before(stage::UPDATE, BEFORE_UPDATE, SystemStage::serial())
+        //.add_stage_before(stage::UPDATE, BEFORE_UPDATE, SystemStage::serial())
         .add_startup_system(setup.system())
-        //.add_system(cursor_system.system())
-        .add_system_to_stage(BEFORE_UPDATE, cursor_system.system())
+        //.add_system_to_stage(BEFORE_UPDATE, cursor_system.system())
+        .add_system(cursor_system.system())
         .add_system(mouse_click_system.system())
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .run();

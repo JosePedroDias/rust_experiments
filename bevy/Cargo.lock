@@ -335,6 +335,7 @@ name = "bevy_dev"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "open",
  "rand 0.8.3",
  "rand_pcg",
 ]
@@ -2614,6 +2615,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
 
 [[package]]
+name = "open"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2033f93630dd4b04768ecf5e16bcd3002a89e1e1dbef375bf290dd67e2b7a4d"
+dependencies = [
+ "which",
+ "winapi 0.3.9",
+]
+
+[[package]]
 name = "owned_ttf_parser"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3795,6 +3806,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e3529528e608b54838ee618c3923b0f46e6db0334cfc6c42a16cf4ceb3bdb57"
 dependencies = [
  "bitflags",
+]
+
+[[package]]
+name = "which"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87c14ef7e1b8b8ecfc75d5eca37949410046e66f15d185c01d70824f1f8111ef"
+dependencies = [
+ "libc",
+ "thiserror",
 ]
 
 [[package]]
