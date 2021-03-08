@@ -6,7 +6,6 @@
 
 - fix bug sticky selection
 - display selected tile (colored border)
-- mouse inside tile instead of nearest tile
 - function to detect puzzle completion
 - apply puzzle logic from macroquad app
 - states (menu screen, etc) => https://bevy-cheatbook.github.io/basics/states.html

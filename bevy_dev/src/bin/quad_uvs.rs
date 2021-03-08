@@ -68,29 +68,30 @@ fn cursor_system(
     if pos_wld.is_some() {
         let pw = pos_wld.unwrap();
 
-        let mut nearest_ent = None;
-        let mut nearest_dist: f32 = std::f32::MAX;
+        let mut hovered_ent = None;
 
         for (entity, td) in q_tile.iter() {
             let center = td.center;
+            let dims = td.dims;
 
-            let dx = center.x - pw.x;
-            let dy = center.y - pw.y;
-            let dist = dx * dx + dy * dy;
+            let x0 = center.x - dims.x * 0.5;
+            let x1 = center.x + dims.x * 0.5;
+            let y0 = center.y - dims.y * 0.5;
+            let y1 = center.y + dims.y * 0.5;
 
-            if dist < nearest_dist {
-                nearest_dist = dist;
-                nearest_ent = Some(entity);
+            if pw.x > x0 && pw.x < x1 && pw.y > y0 && pw.y < y1 {
+                hovered_ent = Some(entity);
+                break;
             }
         }
 
-        if nearest_ent.is_some() && nearest_dist < 11500. {
-            if nearest_ent != game_state.hovered_entity {
-                println!("hover tile #{:?}   {:.0}", nearest_ent, nearest_dist);
-                game_state.hovered_entity = nearest_ent;
+        if hovered_ent.is_some() {
+            if hovered_ent != game_state.hovered_entity {
+                println!("hover tile #{:?}", hovered_ent);
+                game_state.hovered_entity = hovered_ent;
             }
         } else if game_state.hovered_entity.is_some() {
-            println!("hover tile #NONE {:.0}", nearest_dist);
+            println!("hover tile #NONE");
             game_state.hovered_entity = None;
         }
     }
