@@ -263,9 +263,8 @@ fn setup(
                 //font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 font: asset_server.load("fonts/FiraMono-Medium.ttf"),
                 style: TextStyle {
-                    font_size: 16.0,
-                    //color: Color::WHITE,
-                    color: Color::rgba(1., 1., 1., 0.4),
+                    font_size: 14.0,
+                    color: Color::rgba(1., 1., 1., 0.25),
                     ..Default::default()
                 },
             },
