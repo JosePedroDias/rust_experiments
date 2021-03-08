@@ -1,4 +1,4 @@
-use bevy_dev::quad_mesh::build_quad_uvs;
+use bevy_dev::{image_metadatas::select_random_image, quad_mesh::build_quad_uvs};
 
 use bevy::{prelude::*, render::mesh::Mesh};
 use std::mem;
@@ -244,10 +244,13 @@ fn setup(
 // MAIN
 
 fn main() {
-    let image_path = String::from("textures/images/23364494180_b99e33a74d_k.jpg");
-    let image_dims = Vec2::new(2048., 1135.) * 0.33;
+    let image_md = select_random_image();
+    //println!("{:?}", image_md);
+    let image_path = format!("textures/images/{}.jpg", image_md.file_name);
+    let image_dims = image_md.dims;
 
     App::build()
+        //.add_resource(DefaultTaskPoolOptions::with_num_threads(1)) // just for debugging if systems are working well
         .add_resource(GameState {
             hovered_entity: None,
             selected_entity: None,
