@@ -1,8 +1,44 @@
-# to run:
+# bevy experiments
 
-    cargo run --release --bin quad_uvs
+To run the WIP Focus Point game:
 
-## Focus Point TODO
+```sh
+    cargo run --release --bin focus_point
+```
+
+# to run examples (NOT WORKING?):
+
+compiles the tests:
+
+```sh
+    cargo test
+```
+
+runs examples:
+
+```sh
+    cargo run --example circle
+    cargo run --example quad
+```
+
+this example is from bevy repo. use use it sometimes as reference
+
+```sh
+    cargo run --example breakout
+```
+
+this example is just a mixture of samples, not really relevant:
+
+```sh
+    cargo run --example one
+```
+
+## References
+
+I've been collecting notes on Bevy [here](./BEVY_REFERENCES.md)
+    
+
+## TODO:
 
 - elect image randomly in image_metadatas, fill array with all of them too
 - fix bug sticky selection (will probabily require assigning systems to stages => https://bevy-cheatbook.github.io/basics/stages.html)
