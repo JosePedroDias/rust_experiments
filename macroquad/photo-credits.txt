@@ -1,5 +1,9 @@
 https://www.flickr.com/search/?text=landmark&orientation=landscape%2Cpanorama&dimension_search_mode=min&height=640&width=640&license=4%2C5%2C6%2C9%2C10&media=photos
 
+identify -ping -format '%w %h' image.jpg
+identify -ping -format '%w., %h.' 
+identify -ping -format 'dims: Vec2::new(%w., %h.),\n' 
+
 
 5075142940
 BMW Welt, Munich
@@ -26,7 +30,7 @@ https://www.flickr.com/photos/bryansjs/50259586112/in/photolist-2jzgvW9-GaSoiQ-F
 
 
 42018982531
-Landmark 81, 461 mètre!!! Ho Chi Minh City, Vietnam
+Landmark 81, 461 mètre. Ho Chi Minh City, Vietnam
 Lee Nguyen
 https://www.flickr.com/photos/145283084@N04/42018982531/in/photolist-2725gA4-EpgVQJ-p39tNt-Fyh9YB-p37HMb-yMTDfM-FvY4DY-2gBad8h-oKDYwu-yz5yao-oKEryd-yMKPf3-oKEr9A-p2Tgzg-zbZgAk-ehkdbq-oKEqPX-Q9HTUE-oKDMb2-DPEEje-zuZeyj-zs944Y-zGrkyw-4tjMkD-5ejdDV-zeuvmL-56SYQh-zsfoot-HUAdt-FN3KVo-Gdad8n-EpgWQE-zseDeT-5eoBj5-EjVEJL-zwUkGt-4toPSN-zHDPbb-zJGz9z-EAzQws-zepzvj-zewXUn-Gdadhk-G7iSBT-zs6T1C-Ed4GnR-zw4Wbv-DPaGjz-FMTuNY-rbsb76
 

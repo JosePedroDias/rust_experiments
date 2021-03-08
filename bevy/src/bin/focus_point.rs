@@ -1,10 +1,17 @@
-use bevy_dev::{image_metadatas::select_random_image, quad_mesh::build_quad_uvs};
-
 use bevy::{prelude::*, render::mesh::Mesh};
+use bevy_dev::{image_metadatas::select_random_image, quad_mesh::build_quad_uvs};
 use std::mem;
 
-const W: usize = 4;
-const H: usize = 3;
+const W: usize = 10;
+const H: usize = 8;
+
+fn image_contain(screen_dims: Vec2, image_dims: Vec2) -> f32 {
+    let (w, h) = screen_dims.into();
+    let (iw, ih) = image_dims.into();
+    let sar = w / h;
+    let iar = iw / ih;
+    return if iar > sar { w / iw } else { h / ih };
+}
 
 fn generate_tile_bundle(
     mesh: Handle<Mesh>,
@@ -244,10 +251,14 @@ fn setup(
 // MAIN
 
 fn main() {
+    let screen_dims: Vec2 = Vec2::new(1024., 768.);
+    static BEFORE_UPDATE: &str = "BEFORE_UPDATE";
+
     let image_md = select_random_image();
     //println!("{:?}", image_md);
     let image_path = format!("textures/images/{}.jpg", image_md.file_name);
-    let image_dims = image_md.dims;
+    let scale = image_contain(screen_dims, image_md.dims);
+    let image_dims = image_md.dims * scale;
 
     App::build()
         //.add_resource(DefaultTaskPoolOptions::with_num_threads(1)) // just for debugging if systems are working well
@@ -258,17 +269,19 @@ fn main() {
             image_dims,
             image_path,
         })
-        .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.4)))
+        .add_resource(ClearColor(Color::rgb(0.05, 0.05, 0.02)))
         .add_resource(WindowDescriptor {
-            title: "quad_uvs".to_string(),
-            width: 800.,
-            height: 600.,
+            title: "focus point".to_string(),
+            width: screen_dims.x,
+            height: screen_dims.y,
             vsync: true,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_stage_before(stage::UPDATE, BEFORE_UPDATE, SystemStage::serial())
         .add_startup_system(setup.system())
-        .add_system(cursor_system.system())
+        //.add_system(cursor_system.system())
+        .add_system_to_stage(BEFORE_UPDATE, cursor_system.system())
         .add_system(mouse_click_system.system())
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .run();

@@ -3,3 +3,4 @@
 pub mod circle_mesh;
 pub mod image_metadatas;
 pub mod quad_mesh;
+pub mod random;

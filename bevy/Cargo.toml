@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 bevy = { version = "0.4", features = ["jpeg", "dynamic"] }
 # bevy = { git = "https://github.com/bevyengine/bevy.git", branch = "master", features = ["jpeg", "dynamic"] }
+rand = "0.8.3"
+rand_pcg = "0.3.0"
