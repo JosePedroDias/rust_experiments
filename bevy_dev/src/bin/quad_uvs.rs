@@ -30,6 +30,7 @@ struct GameState {
     selected_entity: Option<Entity>,
     image_dims: Vec2,
     image_path: String,
+    material_handle: Option<Handle<ColorMaterial>>,
 }
 
 // WITHS
@@ -122,11 +123,9 @@ fn cursor_system(
 
 fn mouse_click_system(
     commands: &mut Commands,
-    asset_server: Res<AssetServer>,
     mouse_button_input: Res<Input<MouseButton>>,
     mut game_state: ResMut<GameState>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     query: Query<(Entity, &TileData), With<TileData>>,
 ) {
     if mouse_button_input.pressed(MouseButton::Left) {
@@ -181,8 +180,8 @@ fn mouse_click_system(
 
         let tds = [td1, td2];
         for td in tds.iter() {
-            let img_tex = asset_server.load(&game_state.image_path[..]);
-            let mat = materials.add(img_tex.into());
+            let mat = game_state.material_handle.as_ref().unwrap();
+            let mat = (*mat).clone();
             let dims = td.dims.clone();
             let uvs = td.uvs.clone();
             let mesh = meshes.add(build_quad_uvs(dims, uvs));
@@ -198,13 +197,14 @@ fn mouse_click_system(
 fn setup(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
-    game_state: Res<GameState>,
+    mut game_state: ResMut<GameState>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let (w, h) = game_state.image_dims.into();
     let img_tex = asset_server.load(&game_state.image_path[..]);
     let mat = materials.add(img_tex.clone().into());
+    game_state.material_handle = Some(mat.clone());
 
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
@@ -251,6 +251,7 @@ fn main() {
         .add_resource(GameState {
             hovered_entity: None,
             selected_entity: None,
+            material_handle: None,
             image_dims,
             image_path,
         })
