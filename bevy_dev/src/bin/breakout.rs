@@ -1,6 +1,6 @@
 /// BREAKOUT
 /// https://github.com/bevyengine/bevy/blob/v0.4.0/examples/game/breakout.rs
-/// 
+///
 use bevy::{
     prelude::*,
     render::pass::ClearColor,
@@ -49,7 +49,6 @@ fn setup(
         // cameras
         .spawn(Camera2dBundle::default())
         .spawn(CameraUiBundle::default())
-
         // paddle
         .spawn(SpriteBundle {
             material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
@@ -59,7 +58,6 @@ fn setup(
         })
         .with(Paddle { speed: 500.0 })
         .with(Collider::Paddle)
-
         // ball
         .spawn(SpriteBundle {
             material: materials.add(Color::rgb(1.0, 0.5, 0.5).into()),
@@ -70,7 +68,6 @@ fn setup(
         .with(Ball {
             velocity: 400.0 * Vec3::new(0.5, -0.5, 0.0).normalize(),
         })
-
         // scoreboard
         .spawn(TextBundle {
             text: Text {
@@ -108,7 +105,6 @@ fn setup(
             ..Default::default()
         })
         .with(Collider::Solid)
-        
         // right
         .spawn(SpriteBundle {
             material: wall_material.clone(),
@@ -117,7 +113,6 @@ fn setup(
             ..Default::default()
         })
         .with(Collider::Solid)
-
         // bottom
         .spawn(SpriteBundle {
             material: wall_material.clone(),
@@ -126,7 +121,6 @@ fn setup(
             ..Default::default()
         })
         .with(Collider::Solid)
-
         // top
         .spawn(SpriteBundle {
             material: wall_material,

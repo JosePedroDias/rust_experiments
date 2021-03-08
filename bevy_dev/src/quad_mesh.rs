@@ -1,6 +1,6 @@
 use bevy::{
-    render::pipeline::PrimitiveTopology,
     render::mesh::{Indices, Mesh},
+    render::pipeline::PrimitiveTopology,
 };
 
 /*
@@ -61,7 +61,7 @@ pub fn build_quad(width: f32, height: f32) -> Mesh {
     mesh
 }
 
-pub fn build_quad_uvs(width: f32, height: f32, u0:f32, u1:f32, v0:f32, v1:f32) -> Mesh {
+pub fn build_quad_uvs(width: f32, height: f32, u0: f32, u1: f32, v0: f32, v1: f32) -> Mesh {
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
     let n_vertices = 4;

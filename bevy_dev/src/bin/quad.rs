@@ -1,11 +1,6 @@
 use bevy_dev::quad_mesh::build_quad;
 
-use bevy::{
-    prelude::*,
-    render::{
-        mesh::{Mesh},
-    }
-};
+use bevy::{prelude::*, render::mesh::Mesh};
 
 fn main() {
     App::build()
@@ -34,7 +29,6 @@ fn setup(
 
     commands
         .spawn(Camera2dBundle::default())
-
         .spawn(SpriteBundle {
             mesh: meshes.add(mesh),
             material: materials.add(uv_tex.clone().into()),

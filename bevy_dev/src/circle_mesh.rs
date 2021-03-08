@@ -1,11 +1,11 @@
 use bevy::{
-    render::pipeline::PrimitiveTopology,
     render::mesh::{Indices, Mesh},
+    render::pipeline::PrimitiveTopology,
 };
 
-const PI2:f32 = std::f32::consts::PI * 2.0;
+const PI2: f32 = std::f32::consts::PI * 2.0;
 
-pub fn build_circle(radius:f32, vertices:usize) -> Mesh {
+pub fn build_circle(radius: f32, vertices: usize) -> Mesh {
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
     let n_vertices = vertices + 1;
@@ -18,7 +18,6 @@ pub fn build_circle(radius:f32, vertices:usize) -> Mesh {
 
     for i in 0..vertices {
         let angle = (i as f32) / (vertices as f32) * PI2;
-        
         let c = angle.cos();
         let s = angle.sin();
 
@@ -38,7 +37,7 @@ pub fn build_circle(radius:f32, vertices:usize) -> Mesh {
 
     for i in 0..n_triangles {
         indices.push(i % n_triangles);
-        indices.push((i+1) % n_triangles);
+        indices.push((i + 1) % n_triangles);
         indices.push(n_triangles);
     }
 

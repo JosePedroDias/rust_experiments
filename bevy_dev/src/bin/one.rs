@@ -1,9 +1,9 @@
 use bevy::{
-    input::{keyboard::KeyCode, Input},
-    input::mouse::{MouseButtonInput},
     diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
+    input::mouse::MouseButtonInput,
+    input::{keyboard::KeyCode, Input},
     //window::WindowMode,
-    prelude::*
+    prelude::*,
 };
 
 fn main() {
@@ -51,7 +51,6 @@ fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>) {
     }
 }
 
-
 #[derive(Default)]
 struct State {
     mouse_button_event_reader: EventReader<MouseButtonInput>,
@@ -95,7 +94,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials3d: ResMut<Assets<StandardMaterial>>,
     mut materials2d: ResMut<Assets<ColorMaterial>>,
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>,
 ) {
     // Tell the asset server to watch for asset changes on disk:
     //asset_server.watch_for_changes().unwrap();
@@ -115,20 +114,17 @@ fn setup(
                 .looking_at(Vec3::default(), Vec3::unit_y()),
             ..Default::default()
         })
-
         // light
         .spawn(LightBundle {
             transform: Transform::from_translation(Vec3::new(4.0, 5.0, -4.0)),
             ..Default::default()
         })
-        
         // plane
         .spawn(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
             material: materials3d.add(Color::rgb(0.3, 0.5, 0.3).into()),
             ..Default::default()
         })
-
         // parent cube
         .spawn(PbrBundle {
             mesh: cube_handle.clone(),
@@ -146,20 +142,16 @@ fn setup(
                 ..Default::default()
             });
         })
-
         // 2d camera
         .spawn(Camera2dBundle::default())
-
         .spawn(SpriteBundle {
             material: materials2d.add(texture_handle.into()),
             sprite: Sprite::new(Vec2::new(128.0, 128.0)),
             transform: Transform::from_translation(Vec3::new(-200.0, 250.0, 0.0)),
             ..Default::default()
         })
-
         // 2d camera - UI
         .spawn(CameraUiBundle::default())
-
         // fps text
         .spawn(TextBundle {
             style: Style {

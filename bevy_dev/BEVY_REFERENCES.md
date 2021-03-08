@@ -29,10 +29,11 @@
 
 ## community
 
-- https://stackoverflow.com/questions/tagged/bevy
-- https://www.reddit.com/r/bevy/
-- https://github.com/topics/bevy
-- https://github.com/bevyengine/awesome-bevy
+- [discord](https://discord.com/channels/691052431525675048/691052431974465548)
+- [reddit](https://www.reddit.com/r/bevy/)
+- [stack overflow tagged bevy](https://stackoverflow.com/questions/tagged/bevy)
+- [github repositories tagged bevy](https://github.com/topics/bevy)
+- [awesome bevy](https://github.com/bevyengine/awesome-bevy)
 
 ## mods
 - https://github.com/mockersf/bevy_extra
