@@ -1,9 +1,27 @@
 use bevy_dev::quad_mesh::build_quad_uvs;
 
 use bevy::{prelude::*, render::mesh::Mesh};
+use std::mem;
 
 const W: usize = 4;
 const H: usize = 3;
+
+fn generate_tile_bundle(
+    mesh: Handle<Mesh>,
+    mat: Handle<ColorMaterial>,
+    center: Vec3,
+) -> SpriteBundle {
+    SpriteBundle {
+        mesh: mesh,
+        material: mat,
+        sprite: Sprite {
+            size: Vec2::new(1., 1.),
+            resize_mode: SpriteResizeMode::Manual,
+        },
+        transform: Transform::from_translation(center),
+        ..Default::default()
+    }
+}
 
 // RESOURCES
 
@@ -79,11 +97,11 @@ fn cursor_system(
 
 fn mouse_click_system(
     commands: &mut Commands,
-    //asset_server: Res<AssetServer>,
+    asset_server: Res<AssetServer>,
     mouse_button_input: Res<Input<MouseButton>>,
     mut game_state: ResMut<GameState>,
-    //mut meshes: ResMut<Assets<Mesh>>,
-    //mut materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     query: Query<(Entity, &TileData), With<TileData>>,
 ) {
     if mouse_button_input.pressed(MouseButton::Left) {
@@ -114,7 +132,6 @@ fn mouse_click_system(
                 td2 = Some(td.clone());
             }
         }
-        println!("GOT HERE");
 
         commands.despawn(ent1);
         commands.despawn(ent2);
@@ -122,61 +139,24 @@ fn mouse_click_system(
         game_state.selected_entity = None;
         game_state.hovered_entity = None;
 
-        /* if game_state.selected_index.is_none() {
+        let mut td1 = td1.unwrap();
+        let mut td2 = td2.unwrap();
 
-        if game_state.tile_index.is_some() {
-            let ti = game_state.tile_index.unwrap();
-            //println!("trying to kill #{}", ti);
+        mem::swap(&mut td1.mesh_params.2, &mut td2.mesh_params.2);
+        mem::swap(&mut td1.mesh_params.3, &mut td2.mesh_params.3);
+        mem::swap(&mut td1.mesh_params.4, &mut td2.mesh_params.4);
+        mem::swap(&mut td1.mesh_params.5, &mut td2.mesh_params.5);
 
-            for (entity, td) in q_tile.iter() {
-                if td.index == ti {
-                    println!("{:?}", entity);
-                    println!("KILLING #{}!", ti);
-                    commands.despawn(entity);
-
-                    // TODO temporary spawn
-                    let img_tex = asset_server.load(&game_state.image_path[..]);
-                    let (w, h) = game_state.image_dims.into();
-                    let du = 1.0 / W as f32;
-                    let dv = 1.0 / H as f32;
-                    let iw = 0.5;
-                    let ih = 1.2;
-
-                    let u0 = (iw as f32) * 1.0 / (W as f32);
-                    let v0 = (ih as f32) * 1.0 / (H as f32);
-                    let center = Vec3::new(
-                        (-0.5 + ((iw as f32) + 0.5) * du) * w,
-                        (0.5 - ((ih as f32) + 0.5) * dv) * h,
-                        0.,
-                    );
-
-                    commands
-                        .spawn(SpriteBundle {
-                            mesh: meshes.add(build_quad_uvs(
-                                w * du,
-                                h * dv,
-                                u0,
-                                u0 + du,
-                                v0,
-                                v0 + dv,
-                            )),
-                            material: materials.add(img_tex.clone().into()),
-                            sprite: Sprite {
-                                size: Vec2::new(1., 1.),
-                                resize_mode: SpriteResizeMode::Manual,
-                            },
-                            transform: Transform::from_translation(center.clone()),
-                            ..Default::default()
-                        })
-                        .with(TileData {
-                            index: ti,
-                            center: center,
-                        });
-                }
-            }
-
-            game_state.tile_index = None;
-        } */
+        let tds = [td1, td2];
+        for td in tds.iter() {
+            let img_tex = asset_server.load(&game_state.image_path[..]);
+            let mat = materials.add(img_tex.into());
+            let m = td.mesh_params.clone();
+            let mesh = meshes.add(build_quad_uvs(m.0, m.1, m.2, m.3, m.4, m.5));
+            commands
+                .spawn(generate_tile_bundle(mesh, mat, td.center))
+                .with(td.clone());
+        }
     }
 }
 
@@ -191,6 +171,7 @@ fn setup(
 ) {
     let (w, h) = game_state.image_dims.into();
     let img_tex = asset_server.load(&game_state.image_path[..]);
+    let mat = materials.add(img_tex.clone().into());
 
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
@@ -210,22 +191,15 @@ fn setup(
                 (0.5 - ((ih as f32) + 0.5) * dv) * h,
                 0.,
             );
+            let mesh = meshes.add(build_quad_uvs(tw, th, u0, u1, v0, v1));
+            let td = TileData {
+                center,
+                index: ti,
+                mesh_params: (tw, th, u0, u1, v0, v1),
+            };
             commands
-                .spawn(SpriteBundle {
-                    mesh: meshes.add(build_quad_uvs(tw, th, u0, u1, v0, v1)),
-                    material: materials.add(img_tex.clone().into()),
-                    sprite: Sprite {
-                        size: Vec2::new(1., 1.),
-                        resize_mode: SpriteResizeMode::Manual,
-                    },
-                    transform: Transform::from_translation(center.clone()),
-                    ..Default::default()
-                })
-                .with(TileData {
-                    index: ti,
-                    center: center,
-                    mesh_params: (tw, th, u0, u1, v0, v1),
-                });
+                .spawn(generate_tile_bundle(mesh, mat.clone(), center))
+                .with(td);
             ti += 1;
         }
     }
