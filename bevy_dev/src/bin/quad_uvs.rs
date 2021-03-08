@@ -69,6 +69,7 @@ fn cursor_system(
         let pw = pos_wld.unwrap();
 
         let mut hovered_ent = None;
+        let mut hovered_index = None;
 
         for (entity, td) in q_tile.iter() {
             let center = td.center;
@@ -81,18 +82,40 @@ fn cursor_system(
 
             if pw.x > x0 && pw.x < x1 && pw.y > y0 && pw.y < y1 {
                 hovered_ent = Some(entity);
+                hovered_index = Some(td.index);
                 break;
             }
         }
 
-        if hovered_ent.is_some() {
-            if hovered_ent != game_state.hovered_entity {
-                println!("hover tile #{:?}", hovered_ent);
+        let was_empty = game_state.hovered_entity.is_none();
+        let is_empty = hovered_ent.is_none();
+        let was_set = !was_empty;
+        let is_set = !is_empty;
+
+        if was_empty && is_empty {
+            //println!("hover: STILL EMPTY...");
+        } else if was_empty && is_set {
+            println!(
+                "hover: JUST GOT SOMETHING: #{} ({:?})",
+                hovered_index.unwrap(),
+                hovered_ent.unwrap()
+            );
+            game_state.hovered_entity = hovered_ent;
+        } else if was_set && is_set {
+            if game_state.hovered_entity.unwrap() == hovered_ent.unwrap() {
+                //println!("hover: STILL THE SAME...");
+            } else {
+                println!(
+                    "hover: JUST GOT SOMETHING ELSE: #{} ({:?})",
+                    hovered_index.unwrap(),
+                    hovered_ent.unwrap()
+                );
                 game_state.hovered_entity = hovered_ent;
             }
-        } else if game_state.hovered_entity.is_some() {
-            println!("hover tile #NONE");
-            game_state.hovered_entity = None;
+        } else if was_set && is_empty {
+            println!("hover: JUT GOT EMPTY");
+        } else {
+            println!("WTF!");
         }
     }
 }
@@ -108,21 +131,26 @@ fn mouse_click_system(
 ) {
     if mouse_button_input.pressed(MouseButton::Left) {
         if game_state.hovered_entity.is_none() {
+            //println!("click 0 -> NOTHING HOVERED!");
             return;
         }
 
         if game_state.selected_entity.is_none() {
             game_state.selected_entity = game_state.hovered_entity;
+            game_state.hovered_entity = None;
+            //println!("click 1 -> PROMOTING HOVER TO SELECTION");
             return;
         }
         let ent1 = game_state.selected_entity.unwrap();
         let ent2 = game_state.hovered_entity.unwrap();
 
+        game_state.selected_entity = None;
+        game_state.hovered_entity = None;
+
         if ent1 == ent2 {
+            //println!("clock 2 -> SAME TILES!");
             return;
         }
-
-        println!("swapping #{:?} <-> #{:?}", ent1, ent2);
 
         let mut td1: Option<TileData> = None;
         let mut td2: Option<TileData> = None;
@@ -138,11 +166,13 @@ fn mouse_click_system(
         commands.despawn(ent1);
         commands.despawn(ent2);
 
-        game_state.selected_entity = None;
-        game_state.hovered_entity = None;
-
         let mut td1 = td1.unwrap();
         let mut td2 = td2.unwrap();
+
+        println!(
+            "swapping #{} <-> #{} ({:?} {:?})",
+            td1.index, td2.index, ent1, ent2
+        );
 
         mem::swap(&mut td1.uvs.0, &mut td2.uvs.0);
         mem::swap(&mut td1.uvs.1, &mut td2.uvs.1);
