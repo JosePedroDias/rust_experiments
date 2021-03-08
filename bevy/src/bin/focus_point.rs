@@ -37,6 +37,7 @@ struct GameState {
     selected_entity: Option<Entity>,
     image_dims: Vec2,
     image_path: String,
+    image_credits: String,
     material_handle: Option<Handle<ColorMaterial>>,
 }
 
@@ -51,6 +52,8 @@ struct TileData {
     dims: Vec2,
     uvs: (f32, f32, f32, f32),
 }
+
+struct Credits;
 
 // SYSTEMS
 
@@ -246,6 +249,29 @@ fn setup(
             ti += 1;
         }
     }
+
+    // 2d camera - UI
+    commands
+        .spawn(CameraUiBundle::default())
+        .spawn(TextBundle {
+            style: Style {
+                align_self: AlignSelf::FlexStart,
+                ..Default::default()
+            },
+            text: Text {
+                value: game_state.image_credits.clone(),
+                //font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                style: TextStyle {
+                    font_size: 16.0,
+                    //color: Color::WHITE,
+                    color: Color::rgba(1., 1., 1., 0.4),
+                    ..Default::default()
+                },
+            },
+            ..Default::default()
+        })
+        .with(Credits);
 }
 
 // MAIN
@@ -268,6 +294,7 @@ fn main() {
             material_handle: None,
             image_dims,
             image_path,
+            image_credits: format!("{} by {}", image_md.title, image_md.author),
         })
         .add_resource(ClearColor(Color::rgb(0.05, 0.05, 0.02)))
         .add_resource(WindowDescriptor {
