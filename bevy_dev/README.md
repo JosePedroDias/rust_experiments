@@ -4,12 +4,12 @@
 
 ## Focus Point TODO
 
+- fix bug sticky selection
 - display selected tile (colored border)
-- hold 2 indices to support swapping
-- swap tiles
 - mouse inside tile instead of nearest tile
+- function to detect puzzle completion
 - apply puzzle logic from macroquad app
-- optimize change detection https://bevy-cheatbook.github.io/basics/change-detection.html
 - states (menu screen, etc) => https://bevy-cheatbook.github.io/basics/states.html
+- optimize change detection https://bevy-cheatbook.github.io/basics/change-detection.html
 - show credits
 - high score

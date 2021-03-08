@@ -208,16 +208,15 @@ fn setup(
 // MAIN
 
 fn main() {
-    let image_path = "textures/images/23364494180_b99e33a74d_k.jpg";
-    let mut image_dims = Vec2::new(2048., 1135.);
-    image_dims *= 0.33;
+    let image_path = String::from("textures/images/23364494180_b99e33a74d_k.jpg");
+    let image_dims = Vec2::new(2048., 1135.) * 0.33;
 
     App::build()
         .add_resource(GameState {
             hovered_entity: None,
             selected_entity: None,
             image_dims,
-            image_path: String::from(image_path),
+            image_path,
         })
         .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.4)))
         .add_resource(WindowDescriptor {
