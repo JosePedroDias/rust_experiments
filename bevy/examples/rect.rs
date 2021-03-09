@@ -25,14 +25,14 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let uv_tex = asset_server.load("textures/uvs/1.png");
-    let mesh = build_rect(Vec2::new(20., 20.));
+    let mesh = build_rect(Vec2::new(20., 15.));
 
     commands
         .spawn(Camera2dBundle::default())
         .spawn(SpriteBundle {
             mesh: meshes.add(mesh),
             material: materials.add(uv_tex.clone().into()),
-            sprite: Sprite::new(Vec2::new(20., 20.)),
+            sprite: Sprite::new(Vec2::new(20., 20.)), // scales...
             transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
             ..Default::default()
         });
