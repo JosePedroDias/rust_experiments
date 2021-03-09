@@ -1,4 +1,4 @@
-use super::random::int_range;
+use super::random::{get_usize, setup_random_seed};
 use bevy::math::Vec2;
 
 #[derive(Clone, Debug)]
@@ -182,6 +182,7 @@ pub fn select_random_image() -> ImageMetadata {
         },
     ];
 
-    let i: usize = int_range(0 as i32, images.len() as i32) as usize;
+    let mut rng = setup_random_seed();
+    let i = get_usize(&mut rng, images.len());
     return images[i].clone();
 }
