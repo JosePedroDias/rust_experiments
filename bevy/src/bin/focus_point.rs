@@ -6,6 +6,9 @@ use std::mem;
 const W: usize = 10;
 const H: usize = 8;
 
+//const FONT:&str = "fonts/FiraSans-Bold.ttf";
+const FONT: &str = "fonts/FiraMono-Medium.ttf";
+
 fn image_contain(screen_dims: Vec2, image_dims: Vec2) -> f32 {
     let (w, h) = screen_dims.into();
     let (iw, ih) = image_dims.into();
@@ -34,6 +37,8 @@ fn generate_tile_bundle(
 // RESOURCES
 
 struct GameState {
+    screen_dims: Vec2,
+    mouse_pos: Vec2,
     hovered_entity: Option<Entity>,
     selected_entity: Option<Entity>,
     image_dims: Vec2,
@@ -59,11 +64,14 @@ struct Credits;
 
 // SYSTEMS
 
-fn cursor_system(
+fn mouse_handling_system(
+    commands: &mut Commands,
     ev_cursor: Res<Events<CursorMoved>>,
     mut evr_cursor: Local<EventReader<CursorMoved>>,
+    mouse_button_input: Res<Input<MouseButton>>,
     wnds: Res<Windows>,
     mut game_state: ResMut<GameState>,
+    mut meshes: ResMut<Assets<Mesh>>,
     q_camera: Query<&Transform, With<MainCamera>>,
     q_tile: Query<(Entity, &TileData), With<TileData>>,
 ) {
@@ -74,132 +82,96 @@ fn cursor_system(
         let wnd = wnds.get(ev.id).unwrap();
         let size = Vec2::new(wnd.width() as f32, wnd.height() as f32);
         //println!("size: {} x {}", size.x, size.y);
+        game_state.screen_dims = size;
         let p = ev.position - size / 2.0;
         pos_wld = Some(camera_transform.compute_matrix() * p.extend(0.0).extend(1.0));
     }
 
     if pos_wld.is_some() {
-        let pw = pos_wld.unwrap();
+        let pos_wld = pos_wld.unwrap();
+        game_state.mouse_pos.x = pos_wld.x;
+        game_state.mouse_pos.y = pos_wld.y;
+        //println!("POS: {:.0}x{:.0}", pos_wld.x, pos_wld.y);
+    }
 
-        let mut hovered_ent = None;
-        let mut hovered_index = None;
+    if !mouse_button_input.just_released(MouseButton::Left) {
+        return;
+    }
 
-        for (entity, td) in q_tile.iter() {
-            let center = td.center;
-            let dims = td.dims;
+    let pw = game_state.mouse_pos;
+    let mut hovered_ent = None;
 
-            let x0 = center.x - dims.x * 0.5;
-            let x1 = center.x + dims.x * 0.5;
-            let y0 = center.y - dims.y * 0.5;
-            let y1 = center.y + dims.y * 0.5;
+    for (entity, td) in q_tile.iter() {
+        let center = td.center;
+        let dims = td.dims;
 
-            if pw.x > x0 && pw.x < x1 && pw.y > y0 && pw.y < y1 {
-                hovered_ent = Some(entity);
-                hovered_index = Some(td.index);
-                break;
-            }
-        }
+        let x0 = center.x - dims.x * 0.5;
+        let x1 = center.x + dims.x * 0.5;
+        let y0 = center.y - dims.y * 0.5;
+        let y1 = center.y + dims.y * 0.5;
 
-        let was_empty = game_state.hovered_entity.is_none();
-        let is_empty = hovered_ent.is_none();
-        let was_set = !was_empty;
-        let is_set = !is_empty;
-
-        if was_empty && is_empty {
-            //println!("hover: STILL EMPTY...");
-        } else if was_empty && is_set {
-            println!(
-                "hover: JUST GOT SOMETHING: #{} ({:?})",
-                hovered_index.unwrap(),
-                hovered_ent.unwrap()
-            );
-            game_state.hovered_entity = hovered_ent;
-        } else if was_set && is_set {
-            if game_state.hovered_entity.unwrap() == hovered_ent.unwrap() {
-                //println!("hover: STILL THE SAME...");
-            } else {
-                println!(
-                    "hover: JUST GOT SOMETHING ELSE: #{} ({:?})",
-                    hovered_index.unwrap(),
-                    hovered_ent.unwrap()
-                );
-                game_state.hovered_entity = hovered_ent;
-            }
-        } else if was_set && is_empty {
-            println!("hover: JUT GOT EMPTY");
-        } else {
-            println!("WTF!");
+        if pw.x > x0 && pw.x < x1 && pw.y > y0 && pw.y < y1 {
+            hovered_ent = Some(entity);
+            break;
         }
     }
-}
 
-fn mouse_click_system(
-    commands: &mut Commands,
-    mouse_button_input: Res<Input<MouseButton>>,
-    mut game_state: ResMut<GameState>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    query: Query<(Entity, &TileData), With<TileData>>,
-) {
-    if mouse_button_input.pressed(MouseButton::Left) {
-        if game_state.hovered_entity.is_none() {
-            //println!("click 0 -> NOTHING HOVERED!");
-            return;
-        }
+    game_state.hovered_entity = hovered_ent;
+    //println!("hovered: {:?}", hovered_ent);
 
-        if game_state.selected_entity.is_none() {
+    if hovered_ent.is_none() && game_state.mouse_pos.y < 0. {
+        open::that(game_state.image_url.clone()).ok();
+        return;
+    }
+
+    if game_state.hovered_entity.is_some() {
+        if game_state.selected_entity.is_some() {
+            let ent1 = game_state.hovered_entity.unwrap();
+            let ent2 = game_state.selected_entity.unwrap();
+            if ent1 == ent2 {
+                println!("unselected both");
+            } else {
+                println!("swap: {:?} <-> {:?}", ent1, ent2);
+                let mut td1: Option<TileData> = None;
+                let mut td2: Option<TileData> = None;
+
+                for (entity, td) in q_tile.iter() {
+                    if entity == ent1 {
+                        td1 = Some(td.clone());
+                    } else if entity == ent2 {
+                        td2 = Some(td.clone());
+                    }
+                }
+
+                commands.despawn(ent1);
+                commands.despawn(ent2);
+
+                let mut td1 = td1.unwrap();
+                let mut td2 = td2.unwrap();
+
+                mem::swap(&mut td1.uvs.0, &mut td2.uvs.0);
+                mem::swap(&mut td1.uvs.1, &mut td2.uvs.1);
+                mem::swap(&mut td1.uvs.2, &mut td2.uvs.2);
+                mem::swap(&mut td1.uvs.3, &mut td2.uvs.3);
+
+                let tds = [td1, td2];
+                for td in tds.iter() {
+                    let mat = game_state.material_handle.as_ref().unwrap();
+                    let mat = (*mat).clone();
+                    let dims = td.dims.clone();
+                    let uvs = td.uvs.clone();
+                    let mesh = meshes.add(build_quad_uvs(dims, uvs));
+                    commands
+                        .spawn(generate_tile_bundle(mesh, mat, td.center))
+                        .with(td.clone());
+                }
+            }
+            game_state.hovered_entity = None;
+            game_state.selected_entity = None;
+        } else {
             game_state.selected_entity = game_state.hovered_entity;
             game_state.hovered_entity = None;
-            //println!("click 1 -> PROMOTING HOVER TO SELECTION");
-            return;
-        }
-        let ent1 = game_state.selected_entity.unwrap();
-        let ent2 = game_state.hovered_entity.unwrap();
-
-        game_state.selected_entity = None;
-        game_state.hovered_entity = None;
-
-        if ent1 == ent2 {
-            open::that(game_state.image_url.clone()).ok(); // TODO TEMPORARY
-            return;
-        }
-
-        let mut td1: Option<TileData> = None;
-        let mut td2: Option<TileData> = None;
-
-        for (entity, td) in query.iter() {
-            if entity == ent1 {
-                td1 = Some(td.clone());
-            } else if entity == ent2 {
-                td2 = Some(td.clone());
-            }
-        }
-
-        commands.despawn(ent1);
-        commands.despawn(ent2);
-
-        let mut td1 = td1.unwrap();
-        let mut td2 = td2.unwrap();
-
-        println!(
-            "swapping #{} <-> #{} ({:?} {:?})",
-            td1.index, td2.index, ent1, ent2
-        );
-
-        mem::swap(&mut td1.uvs.0, &mut td2.uvs.0);
-        mem::swap(&mut td1.uvs.1, &mut td2.uvs.1);
-        mem::swap(&mut td1.uvs.2, &mut td2.uvs.2);
-        mem::swap(&mut td1.uvs.3, &mut td2.uvs.3);
-
-        let tds = [td1, td2];
-        for td in tds.iter() {
-            let mat = game_state.material_handle.as_ref().unwrap();
-            let mat = (*mat).clone();
-            let dims = td.dims.clone();
-            let uvs = td.uvs.clone();
-            let mesh = meshes.add(build_quad_uvs(dims, uvs));
-            commands
-                .spawn(generate_tile_bundle(mesh, mat, td.center))
-                .with(td.clone());
+            println!("selected 1: {:?}", game_state.selected_entity.unwrap());
         }
     }
 }
@@ -262,8 +234,7 @@ fn setup(
             },
             text: Text {
                 value: game_state.image_credits.clone(),
-                //font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                font: asset_server.load(FONT),
                 style: TextStyle {
                     font_size: 14.0,
                     color: Color::rgba(1., 1., 1., 0.25),
@@ -279,17 +250,16 @@ fn setup(
 
 fn main() {
     let screen_dims: Vec2 = Vec2::new(1024., 768.);
-    //static BEFORE_UPDATE: &str = "BEFORE_UPDATE";
 
     let image_md = select_random_image();
-    //println!("{:?}", image_md);
     let image_path = format!("textures/images/{}.jpg", image_md.file_name);
     let scale = image_contain(screen_dims, image_md.dims);
     let image_dims = image_md.dims * scale;
 
     App::build()
-        //.add_resource(DefaultTaskPoolOptions::with_num_threads(1)) // just for debugging if systems are working well
         .add_resource(GameState {
+            screen_dims: screen_dims.clone(),
+            mouse_pos: Vec2::new(0., 0.),
             hovered_entity: None,
             selected_entity: None,
             material_handle: None,
@@ -303,15 +273,13 @@ fn main() {
             title: "focus point".to_string(),
             width: screen_dims.x,
             height: screen_dims.y,
+            resizable: false,
             vsync: true,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
-        //.add_stage_before(stage::UPDATE, BEFORE_UPDATE, SystemStage::serial())
         .add_startup_system(setup.system())
-        //.add_system_to_stage(BEFORE_UPDATE, cursor_system.system())
-        .add_system(cursor_system.system())
-        .add_system(mouse_click_system.system())
+        .add_system(mouse_handling_system.system())
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .run();
 }
