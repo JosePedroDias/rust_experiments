@@ -1,4 +1,4 @@
-use bevy_dev::shapes::quad::build_quad;
+use bevy_dev::shapes::rounded_rect::build_rounded_rect;
 
 use bevy::{prelude::*, render::mesh::Mesh};
 
@@ -6,7 +6,7 @@ fn main() {
     App::build()
         .add_resource(ClearColor(Color::rgb(0.2, 0.2, 0.4)))
         .add_resource(WindowDescriptor {
-            title: "quad".to_string(),
+            title: "rounded rect".to_string(),
             width: 800.,
             height: 600.,
             vsync: true,
@@ -25,7 +25,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let uv_tex = asset_server.load("textures/uvs/1.png");
-    let mesh = build_quad(Vec2::new(20., 20.));
+    let mesh = build_rounded_rect(Vec2::new(20., 20.));
 
     commands
         .spawn(Camera2dBundle::default())

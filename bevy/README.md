@@ -2,20 +2,16 @@
 
 To run Focus Point game:
 
-
     cargo run --release
-
 
 # to run examples:
 
     cargo run --example circle
     cargo run --example quad
 
-
 ## References
 
 I've been collecting notes on Bevy [here](./BEVY_REFERENCES.md)
-    
 
 ## TODO:
 

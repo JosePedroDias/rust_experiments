@@ -1,4 +1,4 @@
-use super::{components::*, game_logic::*, resources::*, shapes::quad::build_quad_uvs};
+use super::{components::*, game_logic::*, resources::*, shapes::rect::build_rect_uvs};
 use bevy::{prelude::*, render::mesh::Mesh};
 use open;
 use std::mem;
@@ -99,7 +99,7 @@ pub fn mouse_handling_system(
                     let mat = (*mat).clone();
                     let dims = td.dims.clone();
                     let uvs = td.uvs.clone();
-                    let mesh = meshes.add(build_quad_uvs(dims, uvs));
+                    let mesh = meshes.add(build_rect_uvs(dims, uvs));
                     commands
                         .spawn(generate_tile_bundle(mesh, mat, td.center))
                         .with(td.clone());
@@ -147,7 +147,7 @@ pub fn game_setup_system(
             );
             let dims = Vec2::new(tw, th);
             let uvs = (u0, u1, v0, v1);
-            let mesh = meshes.add(build_quad_uvs(dims, uvs));
+            let mesh = meshes.add(build_rect_uvs(dims, uvs));
             let td = TileData {
                 center,
                 index: ti,

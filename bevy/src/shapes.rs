@@ -1,2 +1,3 @@
 pub mod circle;
-pub mod quad;
+pub mod rect;
+pub mod rounded_rect;
