@@ -25,7 +25,8 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let uv_tex = asset_server.load("textures/uvs/1.png");
-    let mesh = build_rounded_rect(Vec2::new(20., 15.), 5., 3);
+    //let mesh = build_rounded_rect(Vec2::new(20., 16.), 2., 3);
+    let mesh = build_rounded_rect(Vec2::new(20., 16.), 5., 7);
 
     commands
         .spawn(Camera2dBundle::default())
