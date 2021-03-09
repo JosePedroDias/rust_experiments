@@ -1,5 +1,5 @@
 use bevy::{prelude::*, render::mesh::Mesh};
-use bevy_dev::{image_metadatas::select_random_image, quad_mesh::build_quad_uvs};
+use bevy_dev::{image_metadatas::select_random_image, shapes::quad::build_quad_uvs};
 use open;
 use std::mem;
 

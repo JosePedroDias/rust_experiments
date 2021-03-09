@@ -1,4 +1,4 @@
-use bevy_dev::quad_mesh::build_quad;
+use bevy_dev::shapes::quad::build_quad;
 
 use bevy::{prelude::*, render::mesh::Mesh};
 

@@ -1,37 +1,16 @@
-# bevy experiments
+# focus point
 
-To run the WIP Focus Point game:
+To run Focus Point game:
 
-```sh
-    cargo run --release --bin focus_point
-```
 
-# to run examples (NOT WORKING?):
+    cargo run --release
 
-compiles the tests:
 
-```sh
-    cargo test
-```
+# to run examples:
 
-runs examples:
-
-```sh
     cargo run --example circle
     cargo run --example quad
-```
 
-this example is from bevy repo. use use it sometimes as reference
-
-```sh
-    cargo run --example breakout
-```
-
-this example is just a mixture of samples, not really relevant:
-
-```sh
-    cargo run --example one
-```
 
 ## References
 
