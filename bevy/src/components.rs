@@ -11,3 +11,5 @@ pub struct TileData {
 }
 
 pub struct Credits;
+
+pub struct StrokedTile;

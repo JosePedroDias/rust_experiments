@@ -26,6 +26,7 @@
 - https://github.com/bevyengine/bevy/blob/v0.4.0/examples/shader/mesh_custom_attribute.rs
 - https://github.com/bevyengine/bevy/blob/v0.4.0/examples/ecs/timers.rs
 - https://github.com/bevyengine/bevy/blob/main/crates/bevy_render/src/mesh/shape/torus.rs
+- https://github.com/bevyengine/bevy/blob/main/examples/window/scale_factor_override.rs
 
 ## community
 

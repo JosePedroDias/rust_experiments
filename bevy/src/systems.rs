@@ -130,8 +130,8 @@ pub fn game_setup_system(
     let mat = materials.add(img_tex.clone().into());
     game_state.material_handle = Some(mat.clone());
 
-    let mesh2 = build_stroked_rect(Vec2::new(200., 150.), 2., 2.);
     let mat2 = materials.add(Color::rgba(1., 0., 1., 0.5).into());
+    game_state.stroked_material_handle = Some(mat2.clone());
 
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
@@ -167,16 +167,14 @@ pub fn game_setup_system(
         }
     }
 
-    commands.spawn(SpriteBundle {
-        mesh: meshes.add(mesh2),
-        material: mat2,
-        sprite: Sprite {
-            size: Vec2::new(1., 1.),
-            resize_mode: SpriteResizeMode::Manual,
-        },
-        transform: Transform::from_translation(Vec3::new(0., 0., 10.)),
-        ..Default::default()
-    });
+    let mesh2 = meshes.add(build_stroked_rect(Vec2::new(200., 150.), 2., 2.));
+    commands
+        .spawn(generate_tile_bundle(
+            mesh2,
+            mat2.clone(),
+            Vec3::new(0., 0., 2.),
+        ))
+        .with(StrokedTile);
 
     // 2d camera - UI
     commands

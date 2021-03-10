@@ -10,4 +10,5 @@ pub struct GameState {
     pub image_credits: String,
     pub image_url: String,
     pub material_handle: Option<Handle<ColorMaterial>>,
+    pub stroked_material_handle: Option<Handle<ColorMaterial>>,
 }

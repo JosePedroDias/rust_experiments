@@ -16,6 +16,7 @@ fn main() {
             hovered_entity: None,
             selected_entity: None,
             material_handle: None,
+            stroked_material_handle: None,
             image_dims,
             image_path,
             image_url: image_md.url,
