@@ -7,3 +7,4 @@ pub mod random;
 pub mod resources;
 pub mod shapes;
 pub mod systems;
+pub mod tests;
