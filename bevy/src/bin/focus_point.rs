@@ -14,6 +14,7 @@ fn main() {
             screen_dims: screen_dims.clone(),
             mouse_pos: Vec2::new(0., 0.),
             hovered_entity: None,
+            selected_entity0: None,
             selected_entity: None,
             material_handle: None,
             stroked_material_handle: None,

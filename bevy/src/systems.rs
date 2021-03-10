@@ -36,10 +36,6 @@ pub fn mouse_handling_system(
         //println!("POS: {:.0}x{:.0}", pos_wld.x, pos_wld.y);
     }
 
-    if !mouse_button_input.just_released(MouseButton::Left) {
-        return;
-    }
-
     let pw = game_state.mouse_pos;
     let mut hovered_ent = None;
 
@@ -58,17 +54,27 @@ pub fn mouse_handling_system(
         }
     }
 
-    game_state.hovered_entity = hovered_ent;
-    //println!("hovered: {:?}", hovered_ent);
+    if game_state.hovered_entity != hovered_ent {
+        game_state.hovered_entity = hovered_ent;
+        println!("hovered: {:?}", hovered_ent);
+    }
+
+    if !mouse_button_input.just_released(MouseButton::Left) {
+        return;
+    }
+
+    println!("selected: {:?}", hovered_ent);
+
+    game_state.selected_entity0 = hovered_ent;
 
     if hovered_ent.is_none() && game_state.mouse_pos.y < 0. {
         open::that(game_state.image_url.clone()).ok();
         return;
     }
 
-    if game_state.hovered_entity.is_some() {
+    if game_state.selected_entity0.is_some() {
         if game_state.selected_entity.is_some() {
-            let ent1 = game_state.hovered_entity.unwrap();
+            let ent1 = game_state.selected_entity0.unwrap();
             let ent2 = game_state.selected_entity.unwrap();
             if ent1 == ent2 {
                 println!("unselected both");
@@ -108,11 +114,11 @@ pub fn mouse_handling_system(
                         .with(td.clone());
                 }
             }
-            game_state.hovered_entity = None;
+            game_state.selected_entity0 = None;
             game_state.selected_entity = None;
         } else {
-            game_state.selected_entity = game_state.hovered_entity;
-            game_state.hovered_entity = None;
+            game_state.selected_entity = game_state.selected_entity0;
+            game_state.selected_entity0 = None;
             println!("selected 1: {:?}", game_state.selected_entity.unwrap());
         }
     }
