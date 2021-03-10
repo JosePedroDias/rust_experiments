@@ -116,6 +116,7 @@ pub fn mouse_handling_system(
                 let mut td1 = td1.unwrap();
                 let mut td2 = td2.unwrap();
 
+                mem::swap(&mut td1.index, &mut td2.index);
                 mem::swap(&mut td1.uvs.0, &mut td2.uvs.0);
                 mem::swap(&mut td1.uvs.1, &mut td2.uvs.1);
                 mem::swap(&mut td1.uvs.2, &mut td2.uvs.2);
@@ -140,6 +141,34 @@ pub fn mouse_handling_system(
             game_state.selected_entity0 = None;
             println!("selected 1: {:?}", game_state.selected_entity.unwrap());
         }
+    }
+}
+
+pub fn event_trigger_system(
+    time: Res<Time>,
+    mut state: ResMut<EventTriggerState>,
+    mut my_events: ResMut<Events<MyEvent>>,
+) {
+    if state.event_timer.tick(time.delta_seconds()).finished() {
+        my_events.send(MyEvent);
+    }
+}
+
+pub fn is_puzzle_complete_system(
+    mut my_event_reader: Local<EventReader<MyEvent>>,
+    my_events: Res<Events<MyEvent>>,
+    q_tile: Query<&TileData, With<TileData>>,
+) {
+    if my_event_reader.iter(&my_events).next().is_some() {
+        println!("BOOM");
+        let mut all_ok = true;
+        for td in q_tile.iter() {
+            if td.original_index != td.index {
+                all_ok = false;
+                break;
+            }
+        }
+        println!("ALL OK? {:?}", all_ok);
     }
 }
 
@@ -182,6 +211,7 @@ pub fn game_setup_system(
             let td = TileData {
                 center,
                 index: ti,
+                original_index: ti,
                 dims,
                 uvs,
             };

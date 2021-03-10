@@ -13,3 +13,17 @@ pub struct GameState {
     pub material_handle: Option<Handle<ColorMaterial>>,
     pub stroked_material_handle: Option<Handle<ColorMaterial>>,
 }
+
+pub struct MyEvent;
+
+pub struct EventTriggerState {
+    pub event_timer: Timer,
+}
+
+impl Default for EventTriggerState {
+    fn default() -> Self {
+        EventTriggerState {
+            event_timer: Timer::from_seconds(1.0, true),
+        }
+    }
+}
