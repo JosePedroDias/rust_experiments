@@ -7,7 +7,9 @@ To run Focus Point game:
 # to run examples:
 
     cargo run --example circle
-    cargo run --example quad
+    cargo run --example rect
+    cargo run --example rounded_rect
+    cargo run --example stroked_rect
 
 ## References
 
