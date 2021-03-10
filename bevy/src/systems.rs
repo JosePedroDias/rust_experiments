@@ -1,4 +1,7 @@
-use super::{components::*, game_logic::*, resources::*, shapes::rect::build_rect_uvs};
+use super::{
+    components::*, game_logic::*, resources::*, shapes::rect::build_rect_uvs,
+    shapes::stroked_rect::build_stroked_rect,
+};
 use bevy::{prelude::*, render::mesh::Mesh};
 use open;
 use std::mem;
@@ -127,6 +130,9 @@ pub fn game_setup_system(
     let mat = materials.add(img_tex.clone().into());
     game_state.material_handle = Some(mat.clone());
 
+    let uv_tex = asset_server.load("textures/uvs/1.png");
+    let mesh2 = build_stroked_rect(Vec2::new(200., 150.), 2., 2.);
+
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
     let du = 1.0 / W as f32;
@@ -160,6 +166,17 @@ pub fn game_setup_system(
             ti += 1;
         }
     }
+
+    commands.spawn(SpriteBundle {
+        mesh: meshes.add(mesh2),
+        material: materials.add(uv_tex.clone().into()),
+        sprite: Sprite {
+            size: Vec2::new(1., 1.),
+            resize_mode: SpriteResizeMode::Manual,
+        },
+        transform: Transform::from_translation(Vec3::new(0., 0., 10.)),
+        ..Default::default()
+    });
 
     // 2d camera - UI
     commands
