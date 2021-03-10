@@ -130,13 +130,8 @@ pub fn game_setup_system(
     let mat = materials.add(img_tex.clone().into());
     game_state.material_handle = Some(mat.clone());
 
-    //let uv_tex = asset_server.load("textures/uvs/1.png");
-    let white_tex = asset_server.load("textures/white.png");
     let mesh2 = build_stroked_rect(Vec2::new(200., 150.), 2., 2.);
-    let mat2 = materials.add(ColorMaterial {
-        color: Color::rgba(1., 0., 1., 0.75),
-        texture: white_tex.clone().into(),
-    });
+    let mat2 = materials.add(Color::rgba(1., 0., 1., 0.5).into());
 
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
