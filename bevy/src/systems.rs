@@ -16,6 +16,7 @@ pub fn mouse_handling_system(
     mut meshes: ResMut<Assets<Mesh>>,
     q_camera: Query<&Transform, With<MainCamera>>,
     q_tile: Query<(Entity, &TileData), With<TileData>>,
+    q_stroke: Query<Entity, With<StrokedTile>>,
 ) {
     let camera_transform = q_camera.iter().next().unwrap();
     let mut pos_wld: Option<Vec4> = None;
@@ -55,8 +56,26 @@ pub fn mouse_handling_system(
     }
 
     if game_state.hovered_entity != hovered_ent {
+        let prev_stroked_ent = q_stroke.iter().next();
+
+        if prev_stroked_ent.is_some() {
+            commands.despawn(prev_stroked_ent.unwrap());
+        }
         game_state.hovered_entity = hovered_ent;
         println!("hovered: {:?}", hovered_ent);
+
+        if hovered_ent.is_some() {
+            let (_, td) = q_tile.get(hovered_ent.unwrap()).unwrap();
+            let mat2 = game_state.stroked_material_handle.as_ref().unwrap();
+            let mat2 = (*mat2).clone();
+            let dims = td.dims.clone();
+            let mut center = td.center.clone();
+            center.z += 2.;
+            let mesh2 = meshes.add(build_stroked_rect(dims, 2., 2.));
+            commands
+                .spawn(generate_tile_bundle(mesh2, mat2, center))
+                .with(StrokedTile);
+        }
     }
 
     if !mouse_button_input.just_released(MouseButton::Left) {
@@ -172,15 +191,6 @@ pub fn game_setup_system(
             ti += 1;
         }
     }
-
-    let mesh2 = meshes.add(build_stroked_rect(Vec2::new(200., 150.), 2., 2.));
-    commands
-        .spawn(generate_tile_bundle(
-            mesh2,
-            mat2.clone(),
-            Vec3::new(0., 0., 2.),
-        ))
-        .with(StrokedTile);
 
     // 2d camera - UI
     commands
