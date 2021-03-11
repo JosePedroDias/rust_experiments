@@ -64,3 +64,18 @@
 
 ## multiple binaries (cargo)
 - https://doc.rust-lang.org/cargo/reference/cargo-targets.html#binaries
+
+
+## logging and tracing
+
+https://docs.rs/bevy/0.4.0/bevy/log/index.html
+https://github.com/bevyengine/bevy/blob/v0.4.0/examples/app/logs.rs
+
+- error 
+- warn
+- info
+- debug
+- trace
+
+~> https://doc.rust-lang.org/reference/conditional-compilation.html
+//#[cfg(feature = "trace")]

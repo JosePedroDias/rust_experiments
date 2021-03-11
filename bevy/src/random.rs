@@ -20,3 +20,10 @@ pub fn get_usize(rng: &mut RandGen, n: usize) -> usize {
         RandGen::Seeded(r) => r.gen_range(0..n),
     }
 }
+
+pub fn get_f32(rng: &mut RandGen) -> f32 {
+    match rng {
+        RandGen::Random(r) => r.gen(),
+        RandGen::Seeded(r) => r.gen(),
+    }
+}

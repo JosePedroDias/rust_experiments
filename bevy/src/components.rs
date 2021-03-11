@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 pub struct MainCamera;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct TileData {
     pub index: usize,
     pub original_index: usize,
