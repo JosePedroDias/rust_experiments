@@ -6,6 +6,28 @@ use bevy::{prelude::*, render::mesh::Mesh};
 use open;
 use std::mem;
 
+//const FONT:&str = "fonts/FiraSans-Bold.ttf";
+pub const FONT: &str = "fonts/FiraMono-Medium.ttf";
+
+fn generate_tile_bundle(
+    mesh: Handle<Mesh>,
+    mat: Handle<ColorMaterial>,
+    center: Vec3,
+) -> SpriteBundle {
+    SpriteBundle {
+        mesh: mesh,
+        material: mat,
+        sprite: Sprite {
+            size: Vec2::new(1., 1.),
+            resize_mode: SpriteResizeMode::Manual,
+        },
+        transform: Transform::from_translation(center),
+        ..Default::default()
+    }
+}
+
+////
+
 pub fn mouse_handling_system(
     commands: &mut Commands,
     ev_cursor: Res<Events<CursorMoved>>,
@@ -160,7 +182,7 @@ pub fn is_puzzle_complete_system(
     q_tile: Query<&TileData, With<TileData>>,
 ) {
     if my_event_reader.iter(&my_events).next().is_some() {
-        println!("BOOM");
+        //println!("BOOM");
         let mut all_ok = true;
         for td in q_tile.iter() {
             if td.original_index != td.index {
@@ -168,7 +190,10 @@ pub fn is_puzzle_complete_system(
                 break;
             }
         }
-        println!("ALL OK? {:?}", all_ok);
+        if all_ok {
+            println!("Puzzle solved.");
+        }
+        //println!("ALL OK? {:?}", all_ok);
     }
 }
 
@@ -179,7 +204,6 @@ pub fn game_setup_system(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let (w, h) = game_state.image_dims.into();
     let img_tex = asset_server.load(&game_state.image_path[..]);
     let mat = materials.add(img_tex.clone().into());
     game_state.material_handle = Some(mat.clone());
@@ -189,37 +213,13 @@ pub fn game_setup_system(
 
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
-    let du = 1.0 / W as f32;
-    let dv = 1.0 / H as f32;
-    let mut ti: usize = 0;
-    for ih in 0..H {
-        for iw in 0..W {
-            let tw = w * du;
-            let th = h * dv;
-            let u0 = (iw as f32) * 1.0 / (W as f32);
-            let v0 = (ih as f32) * 1.0 / (H as f32);
-            let u1 = u0 + du;
-            let v1 = v0 + dv;
-            let center = Vec3::new(
-                (-0.5 + ((iw as f32) + 0.5) * du) * w,
-                (0.5 - ((ih as f32) + 0.5) * dv) * h,
-                0.,
-            );
-            let dims = Vec2::new(tw, th);
-            let uvs = (u0, u1, v0, v1);
-            let mesh = meshes.add(build_rect_uvs(dims, uvs));
-            let td = TileData {
-                center,
-                index: ti,
-                original_index: ti,
-                dims,
-                uvs,
-            };
-            commands
-                .spawn(generate_tile_bundle(mesh, mat.clone(), center))
-                .with(td);
-            ti += 1;
-        }
+    let puzzle = generate_puzzle(game_state.image_dims, 32);
+
+    for td in puzzle {
+        let mesh = meshes.add(build_rect_uvs(td.dims, td.uvs));
+        commands
+            .spawn(generate_tile_bundle(mesh, mat.clone(), td.center))
+            .with(td);
     }
 
     // 2d camera - UI

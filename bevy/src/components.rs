@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-pub struct MainCamera;
-
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct TileData {
     pub index: usize,
     pub original_index: usize,
@@ -12,5 +10,7 @@ pub struct TileData {
 }
 
 pub struct Credits;
+
+pub struct MainCamera;
 
 pub struct StrokedTile;
