@@ -32,8 +32,9 @@ fn swap_pieces(puzzle: &mut Vec<TileData>, i0: usize, i1: usize) {
     let mut p1 = puzzle[i0];
     let mut p2 = puzzle[i1];
     mem::swap(&mut p1.index, &mut p2.index);
-    mem::swap(&mut p1.center, &mut p2.center);
     mem::swap(&mut p1.uvs, &mut p2.uvs);
+    puzzle[i0] = p1;
+    puzzle[i1] = p2;
 }
 
 fn split_center(center: f32, dim: f32, r: f32) -> f32 {
