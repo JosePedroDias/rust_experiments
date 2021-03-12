@@ -144,7 +144,7 @@ pub fn generate_puzzle(dims: Vec2, n: usize) -> Vec<TileData> {
         td.index = i;
     }
 
-    shuffle(&mut puzzle, n);
+    shuffle(&mut puzzle, n * 2);
 
     puzzle
 }

@@ -1,8 +1,8 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowMode};
 use bevy_dev::{game_logic::*, image_metadatas::select_random_image, resources::*, systems::*};
 
 fn main() {
-    let screen_dims: Vec2 = Vec2::new(1024., 768.);
+    let screen_dims: Vec2 = Vec2::new(1280., 800.);
 
     let image_md = select_random_image();
     let image_path = format!("textures/images/{}.jpg", image_md.file_name);
@@ -28,8 +28,9 @@ fn main() {
             title: "focus point".to_string(),
             width: screen_dims.x,
             height: screen_dims.y,
-            resizable: false,
+            resizable: true,
             vsync: true,
+            mode: WindowMode::Fullscreen { use_size: true },
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
