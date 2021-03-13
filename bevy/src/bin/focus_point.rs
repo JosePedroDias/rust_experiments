@@ -1,15 +1,15 @@
 use bevy::{prelude::*, window::WindowMode};
 use bevy_dev::{
-    arguments::*, game_logic::*, image_metadatas::select_random_image, resources::*, systems::*,
+    arguments::*, game_logic::*, image_metadatas::select_image, resources::*, systems::*,
 };
 
 fn main() {
     let args = parse_arguments();
-    //println!("{:?}", &args);
+    println!("{:?}", &args);
 
     let screen_dims: Vec2 = Vec2::new(1280., 800.);
 
-    let image_md = select_random_image();
+    let image_md = select_image(args.image_index);
     let image_path = format!("textures/images/{}.jpg", image_md.file_name);
     let scale = image_contain(screen_dims, image_md.dims);
     let image_dims = image_md.dims * scale;

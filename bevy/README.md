@@ -4,7 +4,18 @@ To run Focus Point game:
 
     cargo run --release
 
-# to run examples:
+or (untested):
+
+    cargo build --release
+    cp target/release/* .
+    focus_point
+
+you can override the defaults. check them with `--help`. ex:
+
+    cargo run --release -- --fs --pieces=60
+
+
+# to run examples (custom shapes):
 
     cargo run --example circle
     cargo run --example rect

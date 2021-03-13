@@ -10,7 +10,7 @@ pub struct ImageMetadata {
     pub url: String,
 }
 
-pub fn select_random_image() -> ImageMetadata {
+pub fn select_image(image_index: Option<usize>) -> ImageMetadata {
     let images: Vec<ImageMetadata> = vec![
         ImageMetadata {
             file_name: String::from("13429106963_a074dbdbcd_k"),
@@ -183,6 +183,12 @@ pub fn select_random_image() -> ImageMetadata {
     ];
 
     let mut rng = setup_random_seed();
-    let i = get_usize(&mut rng, images.len());
+
+    let i = if let Some(ii) = image_index {
+        ii
+    } else {
+        get_usize(&mut rng, images.len())
+    };
+
     return images[i].clone();
 }
