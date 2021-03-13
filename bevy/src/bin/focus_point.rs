@@ -7,13 +7,11 @@ fn main() {
     let args = parse_arguments();
     println!("{:?}", &args);
 
-    let screen_dims: Vec2 = Vec2::new(1280., 800.);
-
+    let screen_dims = args.screen_dims;
     let image_md = select_image(args.image_index);
     let image_path = format!("textures/images/{}.jpg", image_md.file_name);
     let scale = image_contain(screen_dims, image_md.dims);
     let image_dims = image_md.dims * scale;
-
     let window_mode = if args.full_screen {
         WindowMode::Fullscreen { use_size: true }
     } else {

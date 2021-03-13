@@ -130,7 +130,8 @@ pub fn generate_puzzle(dims: Vec2, n: usize) -> Vec<TileData> {
     };
     let mut puzzle = vec![seed_piece];
 
-    for _ in 0..n {
+    for _ in 1..n {
+        // we start from 1 piece :)
         let one = puzzle.remove(heuristic_having_largest_area(&puzzle));
         let index = if one.dims.x > one.dims.y { 0 } else { 1 };
         let ratio = get_f32(&mut rng) * 0.6 + 0.2;
