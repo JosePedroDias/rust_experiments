@@ -15,12 +15,19 @@ you can override the defaults. check them with `--help`. ex:
     cargo run --release -- --fs --pieces=60
 
 
-# to run examples (custom shapes):
+to run examples (custom shapes):
 
     cargo run --example circle
     cargo run --example rect
     cargo run --example rounded_rect
     cargo run --example stroked_rect
+
+## demo playing session
+
+[<img src="https://i.vimeocdn.com/video/1083654572.jpg?mw=1700&mh=1101&q=70">](https://vimeo.com/523244502)
+
+or visit [this vimeo playlist](https://vimeo.com/manage/showcases/8210937/info)
+
 
 ## References
 
@@ -45,21 +52,21 @@ As part of the development of this game, and anticipating the need for other sha
 
 ### circle
 
-![](aux_resources/circle.png)
+<img src="aux_resources/circle.png" width="400">
 
 - [code](src/shapes/circle.rs)
 - [example usage](examples/circle.rs)
 
 ### rounded_rect
 
-![](aux_resources/rounded_rect.png)
+<img src="aux_resources/rounded_rect.png" width="400">
 
 - [code](src/shapes/rounded_rect.rs)
 - [example usage](examples/rounded_rect.rs)
 
 ### stroked_rect
 
-![](aux_resources/stroked_rect.png)
+<img src="aux_resources/stroked_rect.png" width="400">
 
 - [code](src/shapes/stroked_rect.rs)
 - [example usage](examples/stroked_rect.rs)
