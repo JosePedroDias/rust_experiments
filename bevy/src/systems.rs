@@ -213,7 +213,7 @@ pub fn game_setup_system(
 
     commands.spawn(Camera2dBundle::default()).with(MainCamera);
 
-    let puzzle = generate_puzzle(game_state.image_dims, 32);
+    let puzzle = generate_puzzle(game_state.image_dims, game_state.num_pieces);
 
     for td in puzzle {
         let mesh = meshes.add(build_rect_uvs(td.dims, td.uvs));

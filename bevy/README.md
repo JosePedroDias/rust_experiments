@@ -17,7 +17,10 @@ I've been collecting notes on Bevy [here](./BEVY_REFERENCES.md)
 
 ## TODO:
 
-- support resize & full screen => https://github.com/bevyengine/bevy/blob/main/examples/window/scale_factor_override.rs
+- display elapsed time
+- display game ended
+- animate piece changes (alpha and scale down?) + sfx
+- support resize
 - refactor large systems into several systems with events between them (ex: hovered tile changed event)
 - check if we need to free tile's meshes when we create other ones
 - states (menu screen, etc) => https://bevy-cheatbook.github.io/basics/states.html

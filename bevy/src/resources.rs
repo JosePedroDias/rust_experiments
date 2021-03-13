@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 pub struct GameState {
+    pub num_pieces: usize,
     pub screen_dims: Vec2,
     pub mouse_pos: Vec2,
     pub hovered_entity: Option<Entity>,

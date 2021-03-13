@@ -1,7 +1,12 @@
 use bevy::{prelude::*, window::WindowMode};
-use bevy_dev::{game_logic::*, image_metadatas::select_random_image, resources::*, systems::*};
+use bevy_dev::{
+    arguments::*, game_logic::*, image_metadatas::select_random_image, resources::*, systems::*,
+};
 
 fn main() {
+    let args = parse_arguments();
+    //println!("{:?}", &args);
+
     let screen_dims: Vec2 = Vec2::new(1280., 800.);
 
     let image_md = select_random_image();
@@ -9,8 +14,14 @@ fn main() {
     let scale = image_contain(screen_dims, image_md.dims);
     let image_dims = image_md.dims * scale;
 
+    let window_mode = if args.full_screen {
+        WindowMode::Fullscreen { use_size: true }
+    } else {
+        WindowMode::Windowed
+    };
     App::build()
         .add_resource(GameState {
+            num_pieces: args.num_pieces,
             screen_dims: screen_dims.clone(),
             mouse_pos: Vec2::new(0., 0.),
             hovered_entity: None,
@@ -30,7 +41,7 @@ fn main() {
             height: screen_dims.y,
             resizable: true,
             vsync: true,
-            mode: WindowMode::Fullscreen { use_size: true },
+            mode: window_mode,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)

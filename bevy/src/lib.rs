@@ -1,5 +1,6 @@
 // https://stackoverflow.com/questions/60993657/cross-module-function-call-in-rust
 
+pub mod arguments;
 pub mod components;
 pub mod game_logic;
 pub mod image_metadatas;
