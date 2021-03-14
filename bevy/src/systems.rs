@@ -7,7 +7,7 @@ use open;
 use std::mem;
 
 #[derive(Debug)]
-pub struct AnimateAlpha {
+pub struct Animate {
     pub start_t: f64,
     pub duration: f64,
 }
@@ -174,9 +174,9 @@ pub fn mouse_handling_system(
                     commands
                         .spawn(generate_tile_bundle(mesh, mat, td.center))
                         .with(td.clone())
-                        .with(AnimateAlpha {
+                        .with(Animate {
                             start_t: t,
-                            duration: 4.,
+                            duration: 0.5,
                         });
                 }
             }
@@ -191,36 +191,33 @@ pub fn mouse_handling_system(
 }
 
 pub fn animate_system(
-    //commands: &mut Commands,
+    commands: &mut Commands,
     time: Res<Time>,
-    mut q_anim: Query<(Entity, &AnimateAlpha, &mut Sprite), With<AnimateAlpha>>,
+    mut q_anim: Query<(Entity, &Animate, &mut Transform), With<Animate>>,
     q_mat: Query<&Handle<ColorMaterial>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    //mut q_trans: Query<&mut Transform>,
-    //mut q_trans: Query<(Entity, &mut Transform)
 ) {
     let t = time.seconds_since_startup();
-    for (ent, aa, mut spr) in q_anim.iter_mut() {
+    for (ent, aa, mut tr) in q_anim.iter_mut() {
+        let mut t_ = t;
         let t0 = aa.start_t;
         let t1 = t0 + aa.duration;
-        if t > t1 {
-            //println!("DELETE THIS");
-            continue;
-            //aa.remove();
-            //commands.remove_one(aa);
+        let mut to_kill = false;
+        if t_ > t1 {
+            to_kill = true;
+            t_ = t1;
         }
-        let r: f32 = ((t - t0) / aa.duration) as f32;
-        //println!("{:.2}", r);
+        let r: f32 = ((t_ - t0) / aa.duration) as f32;
+        //println!("{:.3}", r);
         if let Ok(material_handle) = q_mat.get(ent) {
             let mut material = materials.get_mut(&*material_handle).unwrap();
             material.color = Color::rgba(1., 1., 1., r);
         }
-        spr.size = Vec2::one() * r;
-        /* if let Ok(trans) = q_trans.get_mut(ent) {
-            //let mut trans = trans_handle.get_mut();
-            let mut trans = *trans;
-            trans.scale = Vec3::one() * r;
-        } */
+        tr.scale = Vec3::one() * r;
+
+        if to_kill {
+            commands.remove_one::<Animate>(ent);
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Debug)]
-struct AnimateAlpha {
+struct Animate {
     start_t: f64,
     duration: f64,
 }
@@ -24,60 +24,36 @@ fn main() {
 }
 
 fn animate_system(
-    //commands: &mut Commands,
+    commands: &mut Commands,
     time: Res<Time>,
-    mut q_anim: Query<(Entity, &AnimateAlpha, &mut Sprite), With<AnimateAlpha>>,
+    mut q_anim: Query<(Entity, &Animate, &mut Sprite, &mut Transform), With<Animate>>,
     q_mat: Query<&Handle<ColorMaterial>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    //mut q_trans: Query<&mut Transform>,
-    //mut q_sprite: Query<&mut Sprite>,
 ) {
     let t = time.seconds_since_startup();
-    for (ent, aa, mut spr) in q_anim.iter_mut() {
+    for (ent, aa, mut spr, mut tr) in q_anim.iter_mut() {
+        let mut t_ = t;
         let t0 = aa.start_t;
         let t1 = t0 + aa.duration;
-        if t > t1 {
-            // TODO delete AnimateAlpha and set keys to their target value
-            continue;
-            //aa.remove();
-            //commands.remove_one(aa);
+        let mut to_kill = false;
+        if t_ > t1 {
+            to_kill = true;
+            t_ = t1;
         }
-        let r: f32 = ((t - t0) / aa.duration) as f32;
-        //println!("{:.2}", r);
+        let r: f32 = ((t_ - t0) / aa.duration) as f32;
+        //println!("{:.3}", r);
         if let Ok(material_handle) = q_mat.get(ent) {
             let mut material = materials.get_mut(&*material_handle).unwrap();
             material.color = Color::rgba(1., 1., 1., r);
         }
         spr.size = Vec2::one() * 200. * r;
-        //println!("{:?}", spr);
-        /* if let Ok(sprite_handle) = q_sprite.get_mut(ent) {
 
-            //let mut sprite = sprite_handle.get_mut();
-            //let mut sprite = *sprite;
-            println!("{:?}", sprite);
-            //trans.scale = Vec3::one() * r;
+        //tr.scale = Vec3::one() * r;
+        tr.translation.x = -150. + r * 300.;
+
+        if to_kill {
+            commands.remove_one::<Animate>(ent);
         }
-        if let Ok(trans) = q_trans.get_mut(ent) {
-            //let mut trans = trans_handle.get_mut();
-            let mut trans = *trans;
-            trans.scale = Vec3::one() * r;
-        } */
-        //let trans = trans
-        //let trans = (&*trans).unwrap();
-        //let mut trans = *trans;
-        //println!("t0: {:?}", trans);
-        //trans.scale = Vec3::one() * r;
-        //if let Ok(trans_handle) = q_trans.get_mut(ent) {
-        //let mut trans = *trans_handle;
-        //println!("t0: {:?}", trans);
-        //trans.scale *= r;
-        //trans.scale = Vec3::one() * r;
-        //trans.scale.x = r;
-        //trans.scale.y = r;
-        //trans.scale.z = r;
-        //trans.translation = Vec3::zero();
-        //println!("t1: {:?}", trans);
-        //}
     }
 }
 
@@ -96,7 +72,7 @@ fn setup(
             transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
             ..Default::default()
         })
-        .with(AnimateAlpha {
+        .with(Animate {
             start_t: 1.,
             duration: 2.,
         });
