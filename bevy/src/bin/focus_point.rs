@@ -26,6 +26,7 @@ fn main() {
             selected_entity0: None,
             selected_entity: None,
             material_handle: None,
+            image_handle: None,
             stroked_material_handle: None,
             image_dims,
             image_path,
@@ -46,6 +47,7 @@ fn main() {
         .add_event::<MyEvent>()
         .init_resource::<EventTriggerState>()
         .add_startup_system(game_setup_system.system())
+        .add_system(animate_system.system())
         .add_system(event_trigger_system.system())
         .add_system(is_puzzle_complete_system.system())
         .add_system(mouse_handling_system.system())
