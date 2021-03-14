@@ -255,21 +255,34 @@ pub fn event_trigger_system(
 pub fn is_puzzle_complete_system(
     mut my_event_reader: Local<EventReader<MyEvent>>,
     my_events: Res<Events<MyEvent>>,
+    time: Res<Time>,
     q_tile: Query<&TileData, With<TileData>>,
+    mut q_text: Query<&mut Text, With<ElapsedTime>>,
 ) {
+    let t = time.seconds_since_startup();
     if my_event_reader.iter(&my_events).next().is_some() {
-        //println!("BOOM");
         let mut all_ok = true;
+        let mut tiles_found = 0;
+        let mut tiles_in_place = 0;
         for td in q_tile.iter() {
+            tiles_found += 1;
             if td.original_index != td.index {
                 all_ok = false;
-                break;
+            } else {
+                tiles_in_place += 1;
             }
         }
-        if all_ok {
-            println!("Puzzle solved.");
+        let status = if all_ok {
+            String::from("solved")
+        } else {
+            let pct = 100. * (tiles_in_place as f32) / (tiles_found as f32);
+            format!("{:.0}%", pct)
+        };
+        for mut text in q_text.iter_mut() {
+            let mins = t / 60.;
+            let secs = t % 60.;
+            text.value = format!("{:.0}:{:02.0} {}", mins, secs, status); // String::from("batatas");
         }
-        //println!("ALL OK? {:?}", all_ok);
     }
 }
 
@@ -325,6 +338,7 @@ pub fn game_setup_system(
             },
             ..Default::default()
         })
+        .with(ElapsedTime)
         .spawn(TextBundle {
             style: Style {
                 align_self: AlignSelf::FlexStart,

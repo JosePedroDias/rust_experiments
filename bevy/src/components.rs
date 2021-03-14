@@ -23,6 +23,8 @@ pub enum AnimateKind {
     GROW,
 }
 
+pub struct ElapsedTime;
+
 pub struct Credits;
 
 pub struct MainCamera;
