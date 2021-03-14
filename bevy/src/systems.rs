@@ -6,6 +6,12 @@ use bevy::{prelude::*, render::mesh::Mesh};
 use open;
 use std::mem;
 
+#[derive(Debug)]
+pub struct AnimateAlpha {
+    pub start_t: f64,
+    pub duration: f64,
+}
+
 //const FONT:&str = "fonts/FiraSans-Bold.ttf";
 pub const FONT: &str = "fonts/FiraMono-Medium.ttf";
 
@@ -29,6 +35,7 @@ fn generate_tile_bundle(
 ////
 
 pub fn mouse_handling_system(
+    time: Res<Time>,
     commands: &mut Commands,
     ev_cursor: Res<Events<CursorMoved>>,
     mut evr_cursor: Local<EventReader<CursorMoved>>,
@@ -36,6 +43,7 @@ pub fn mouse_handling_system(
     wnds: Res<Windows>,
     mut game_state: ResMut<GameState>,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     q_camera: Query<&Transform, With<MainCamera>>,
     q_tile: Query<(Entity, &TileData), With<TileData>>,
     q_stroke: Query<Entity, With<StrokedTile>>,
@@ -90,10 +98,13 @@ pub fn mouse_handling_system(
             let (_, td) = q_tile.get(hovered_ent.unwrap()).unwrap();
             let mat2 = game_state.stroked_material_handle.as_ref().unwrap();
             let mat2 = (*mat2).clone();
+            //let mat2 = materials.add(Color::rgba(0.1, 0.4, 0.8, 1.).into());
             let dims = td.dims.clone();
             let mut center = td.center.clone();
             center.z += 2.;
-            let mesh2 = meshes.add(build_stroked_rect(dims, 2., 2.));
+            let mesh2_ = build_stroked_rect(dims, 2., 2.);
+            let mesh2 = meshes.add(mesh2_);
+
             commands
                 .spawn(generate_tile_bundle(mesh2, mat2, center))
                 .with(StrokedTile);
@@ -144,16 +155,29 @@ pub fn mouse_handling_system(
                 mem::swap(&mut td1.uvs.2, &mut td2.uvs.2);
                 mem::swap(&mut td1.uvs.3, &mut td2.uvs.3);
 
+                let t = time.seconds_since_startup();
+
                 let tds = [td1, td2];
                 for td in tds.iter() {
                     let mat = game_state.material_handle.as_ref().unwrap();
                     let mat = (*mat).clone();
+                    /* let img_tex = game_state.image_handle.as_ref().unwrap();
+                    let img_tex = (*img_tex).clone();
+                    let mat = materials.add(ColorMaterial {
+                        color: Color::rgba(1., 1., 1., 0.),
+                        texture: Some(img_tex),
+                    }); */
+
                     let dims = td.dims.clone();
                     let uvs = td.uvs.clone();
                     let mesh = meshes.add(build_rect_uvs(dims, uvs));
                     commands
                         .spawn(generate_tile_bundle(mesh, mat, td.center))
-                        .with(td.clone());
+                        .with(td.clone())
+                        .with(AnimateAlpha {
+                            start_t: t,
+                            duration: 4.,
+                        });
                 }
             }
             game_state.selected_entity0 = None;
@@ -162,6 +186,45 @@ pub fn mouse_handling_system(
             game_state.selected_entity = game_state.selected_entity0;
             game_state.selected_entity0 = None;
             println!("selected 1: {:?}", game_state.selected_entity.unwrap());
+        }
+    }
+}
+
+pub fn animate_system(
+    //commands: &mut Commands,
+    time: Res<Time>,
+    q_anim: Query<(Entity, &AnimateAlpha), With<AnimateAlpha>>,
+    //q_mat: Query<&Handle<ColorMaterial>>,
+    //mut materials: ResMut<Assets<ColorMaterial>>,
+    mut q_trans: Query<&mut Transform>,
+    //mut q_trans: Query<(Entity, &mut Transform)
+) {
+    let t = time.seconds_since_startup();
+    for (ent, aa) in q_anim.iter() {
+        let t0 = aa.start_t;
+        let t1 = t0 + aa.duration;
+        if t > t1 {
+            //println!("DELETE THIS");
+            continue;
+            //aa.remove();
+            //commands.remove_one(aa);
+        }
+        let r: f32 = ((t - t0) / aa.duration) as f32;
+        //println!("{:.2}", r);
+        /* if let Ok(material_handle) = q_mat.get(ent) {
+            let mut material = materials.get_mut(&*material_handle).unwrap();
+            material.color = Color::rgba(1., 1., 1., r);
+        } */
+        if let Ok(trans_handle) = q_trans.get_mut(ent) {
+            let mut trans = *trans_handle;
+            println!("t0: {:?}", trans);
+            trans.scale *= r;
+            //trans.scale = Vec3::one() * r;
+            //trans.scale.x = r;
+            //trans.scale.y = r;
+            //trans.scale.z = r;
+            //trans.translation = Vec3::zero();
+            //println!("t1: {:?}", trans);
         }
     }
 }
@@ -207,6 +270,7 @@ pub fn game_setup_system(
     let img_tex = asset_server.load(&game_state.image_path[..]);
     let mat = materials.add(img_tex.clone().into());
     game_state.material_handle = Some(mat.clone());
+    game_state.image_handle = Some(img_tex.clone());
 
     let mat2 = materials.add(Color::rgba(1., 0., 1., 0.5).into());
     game_state.stroked_material_handle = Some(mat2.clone());
