@@ -171,8 +171,6 @@ pub fn mouse_handling_system(
 
                 let tds = [td1, td2];
                 for td in tds.iter() {
-                    /* let mat = game_state.material_handle.as_ref().unwrap();
-                    let mat = (*mat).clone(); */
                     let img_tex = game_state.image_handle.as_ref().unwrap();
                     let img_tex = (*img_tex).clone();
                     let mat = materials.add(ColorMaterial {
@@ -187,7 +185,7 @@ pub fn mouse_handling_system(
                         .spawn(generate_tile_bundle(mesh, mat, td.center))
                         .with(td.clone())
                         .with(Animate {
-                            start_t: t + 0.3,
+                            start_t: t + 0.15,
                             duration: 0.3,
                             kind: AnimateKind::GROW,
                             kill_ent_at_end: false,
@@ -312,15 +310,33 @@ pub fn game_setup_system(
         .spawn(CameraUiBundle::default())
         .spawn(TextBundle {
             style: Style {
+                align_self: AlignSelf::FlexEnd,
+                position_type: PositionType::Absolute,
+                ..Default::default()
+            },
+            text: Text {
+                value: String::from("elapsed"),
+                font: asset_server.load(FONT),
+                style: TextStyle {
+                    font_size: 20.0,
+                    color: Color::rgba(1., 1., 1., 0.8),
+                    ..Default::default()
+                },
+            },
+            ..Default::default()
+        })
+        .spawn(TextBundle {
+            style: Style {
                 align_self: AlignSelf::FlexStart,
+                position_type: PositionType::Absolute,
                 ..Default::default()
             },
             text: Text {
                 value: game_state.image_credits.clone(),
                 font: asset_server.load(FONT),
                 style: TextStyle {
-                    font_size: 14.0,
-                    color: Color::rgba(1., 1., 1., 0.25),
+                    font_size: 15.0,
+                    color: Color::rgba(1., 1., 1., 0.4),
                     ..Default::default()
                 },
             },
