@@ -9,6 +9,20 @@ pub struct TileData {
     pub uvs: (f32, f32, f32, f32),
 }
 
+#[derive(Debug)]
+pub struct Animate {
+    pub start_t: f64,
+    pub duration: f64,
+    pub kind: AnimateKind,
+    pub kill_ent_at_end: bool,
+}
+
+#[derive(Debug)]
+pub enum AnimateKind {
+    SHRINK = 1,
+    GROW,
+}
+
 pub struct Credits;
 
 pub struct MainCamera;

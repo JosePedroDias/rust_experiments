@@ -15,6 +15,7 @@
 ## docs
 
 - https://docs.rs/bevy/0.4.0/bevy/
+- https://cheats.rs/
 
 ## source code examples
 
@@ -67,6 +68,8 @@
 
 
 ## logging and tracing
+
+kind useless as it's hard to change the hardcoded defaults
 
 https://docs.rs/bevy/0.4.0/bevy/log/index.html
 https://github.com/bevyengine/bevy/blob/v0.4.0/examples/app/logs.rs

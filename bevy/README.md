@@ -37,7 +37,8 @@ I've been collecting notes on Bevy [here](./BEVY_REFERENCES.md)
 
 - display elapsed time
 - display game ended
-- animate piece changes (alpha and scale down?) + sfx
+- sfx
+- document stuff https://cheats.rs/#documentation
 - support resize
 - refactor large systems into several systems with events between them (ex: hovered tile changed event)
 - check if we need to free tile's meshes when we create other ones

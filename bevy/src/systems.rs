@@ -6,12 +6,6 @@ use bevy::{prelude::*, render::mesh::Mesh};
 use open;
 use std::mem;
 
-#[derive(Debug)]
-pub struct Animate {
-    pub start_t: f64,
-    pub duration: f64,
-}
-
 //const FONT:&str = "fonts/FiraSans-Bold.ttf";
 pub const FONT: &str = "fonts/FiraMono-Medium.ttf";
 
@@ -143,8 +137,28 @@ pub fn mouse_handling_system(
                     }
                 }
 
-                commands.despawn(ent1);
-                commands.despawn(ent2);
+                let t = time.seconds_since_startup();
+
+                commands.remove_one::<TileData>(ent1);
+                commands.remove_one::<TileData>(ent2);
+                commands.insert_one(
+                    ent1,
+                    Animate {
+                        start_t: t,
+                        duration: 0.3,
+                        kind: AnimateKind::SHRINK,
+                        kill_ent_at_end: true,
+                    },
+                );
+                commands.insert_one(
+                    ent2,
+                    Animate {
+                        start_t: t,
+                        duration: 0.3,
+                        kind: AnimateKind::SHRINK,
+                        kill_ent_at_end: true,
+                    },
+                );
 
                 let mut td1 = td1.unwrap();
                 let mut td2 = td2.unwrap();
@@ -154,8 +168,6 @@ pub fn mouse_handling_system(
                 mem::swap(&mut td1.uvs.1, &mut td2.uvs.1);
                 mem::swap(&mut td1.uvs.2, &mut td2.uvs.2);
                 mem::swap(&mut td1.uvs.3, &mut td2.uvs.3);
-
-                let t = time.seconds_since_startup();
 
                 let tds = [td1, td2];
                 for td in tds.iter() {
@@ -175,8 +187,10 @@ pub fn mouse_handling_system(
                         .spawn(generate_tile_bundle(mesh, mat, td.center))
                         .with(td.clone())
                         .with(Animate {
-                            start_t: t,
-                            duration: 0.5,
+                            start_t: t + 0.3,
+                            duration: 0.3,
+                            kind: AnimateKind::GROW,
+                            kill_ent_at_end: false,
                         });
                 }
             }
@@ -208,14 +222,23 @@ pub fn animate_system(
             t_ = t1;
         }
         let r: f32 = ((t_ - t0) / aa.duration) as f32;
-        //println!("{:.3}", r);
-        if let Ok(material_handle) = q_mat.get(ent) {
-            let mut material = materials.get_mut(&*material_handle).unwrap();
-            material.color = Color::rgba(1., 1., 1., r);
+        let material_handle = q_mat.get(ent).unwrap();
+        let mut material = materials.get_mut(&*material_handle).unwrap();
+        //println!("{:?} {:.3}", aa.kind, r);
+        match aa.kind {
+            AnimateKind::SHRINK => {
+                material.color = Color::rgba(1., 1., 1., 1. - r);
+                tr.scale = Vec3::one() * (1. - r);
+            }
+            AnimateKind::GROW => {
+                material.color = Color::rgba(1., 1., 1., r);
+                tr.scale = Vec3::one() * r;
+            }
         }
-        tr.scale = Vec3::one() * r;
 
-        if to_kill {
+        if to_kill && aa.kill_ent_at_end {
+            commands.despawn(ent);
+        } else if to_kill {
             commands.remove_one::<Animate>(ent);
         }
     }
@@ -260,8 +283,8 @@ pub fn game_setup_system(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let img_tex = asset_server.load(&game_state.image_path[..]);
-    let mat = materials.add(img_tex.clone().into());
-    game_state.material_handle = Some(mat.clone());
+    //let mat = materials.add(img_tex.clone().into());
+    //game_state.material_handle = Some(mat.clone());
     game_state.image_handle = Some(img_tex.clone());
 
     let mat2 = materials.add(Color::rgba(1., 0., 1., 0.5).into());
@@ -272,9 +295,15 @@ pub fn game_setup_system(
     let puzzle = generate_puzzle(game_state.image_dims, game_state.num_pieces);
 
     for td in puzzle {
+        let img_tex = game_state.image_handle.as_ref().unwrap();
+        let img_tex = (*img_tex).clone();
+        let mat = materials.add(ColorMaterial {
+            color: Color::rgba(1., 1., 1., 1.),
+            texture: Some(img_tex),
+        });
         let mesh = meshes.add(build_rect_uvs(td.dims, td.uvs));
         commands
-            .spawn(generate_tile_bundle(mesh, mat.clone(), td.center))
+            .spawn(generate_tile_bundle(mesh, mat, td.center))
             .with(td);
     }
 
