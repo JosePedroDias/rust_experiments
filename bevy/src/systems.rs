@@ -278,10 +278,11 @@ pub fn is_puzzle_complete_system(
             let pct = 100. * (tiles_in_place as f32) / (tiles_found as f32);
             format!("{:.0}%", pct)
         };
+        let mins = t / 60.;
+        let secs = t % 60.;
+        let text_value = format!("{:.0}:{:02.0} {}", mins, secs, status);
         for mut text in q_text.iter_mut() {
-            let mins = t / 60.;
-            let secs = t % 60.;
-            text.value = format!("{:.0}:{:02.0} {}", mins, secs, status); // String::from("batatas");
+            text.value = text_value.clone();
         }
     }
 }
@@ -319,8 +320,32 @@ pub fn game_setup_system(
     }
 
     // 2d camera - UI
+    let font_handle = asset_server.load(FONT);
     commands
         .spawn(CameraUiBundle::default())
+        .spawn(TextBundle {
+            style: Style {
+                align_self: AlignSelf::FlexEnd,
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    left: Val::Px(2.),
+                    top: Val::Px(2.),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            text: Text {
+                value: String::from(""),
+                font: font_handle.clone(),
+                style: TextStyle {
+                    font_size: 24.0,
+                    color: Color::rgba(0., 0., 0., 0.8),
+                    ..Default::default()
+                },
+            },
+            ..Default::default()
+        })
+        .with(ElapsedTime)
         .spawn(TextBundle {
             style: Style {
                 align_self: AlignSelf::FlexEnd,
@@ -328,10 +353,10 @@ pub fn game_setup_system(
                 ..Default::default()
             },
             text: Text {
-                value: String::from("elapsed"),
-                font: asset_server.load(FONT),
+                value: String::from(""),
+                font: font_handle.clone(),
                 style: TextStyle {
-                    font_size: 20.0,
+                    font_size: 24.0,
                     color: Color::rgba(1., 1., 1., 0.8),
                     ..Default::default()
                 },
@@ -343,14 +368,37 @@ pub fn game_setup_system(
             style: Style {
                 align_self: AlignSelf::FlexStart,
                 position_type: PositionType::Absolute,
+                position: Rect {
+                    left: Val::Px(2.),
+                    bottom: Val::Px(-2.),
+                    ..Default::default()
+                },
                 ..Default::default()
             },
             text: Text {
                 value: game_state.image_credits.clone(),
-                font: asset_server.load(FONT),
+                font: font_handle.clone(),
                 style: TextStyle {
-                    font_size: 15.0,
-                    color: Color::rgba(1., 1., 1., 0.4),
+                    font_size: 17.0,
+                    color: Color::rgba(0., 0., 0., 0.6),
+                    ..Default::default()
+                },
+            },
+            ..Default::default()
+        })
+        .with(Credits)
+        .spawn(TextBundle {
+            style: Style {
+                align_self: AlignSelf::FlexStart,
+                position_type: PositionType::Absolute,
+                ..Default::default()
+            },
+            text: Text {
+                value: game_state.image_credits.clone(),
+                font: font_handle.clone(),
+                style: TextStyle {
+                    font_size: 17.0,
+                    color: Color::rgba(1., 1., 1., 0.6),
                     ..Default::default()
                 },
             },
