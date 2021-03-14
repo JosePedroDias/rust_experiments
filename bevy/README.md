@@ -15,8 +15,9 @@ you can override the defaults. check them with `--help`. ex:
     cargo run --release -- --fs --pieces=60
 
 
-to run examples (custom shapes):
+to run examples (mostly custom shapes):
 
+    cargo run --example animate
     cargo run --example circle
     cargo run --example rect
     cargo run --example rounded_rect
@@ -35,8 +36,6 @@ I've been collecting notes on Bevy [here](./BEVY_REFERENCES.md)
 
 ## TODO:
 
-- display elapsed time
-- display game ended
 - sfx
 - document stuff https://cheats.rs/#documentation
 - support resize
