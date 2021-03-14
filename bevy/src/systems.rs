@@ -159,14 +159,14 @@ pub fn mouse_handling_system(
 
                 let tds = [td1, td2];
                 for td in tds.iter() {
-                    let mat = game_state.material_handle.as_ref().unwrap();
-                    let mat = (*mat).clone();
-                    /* let img_tex = game_state.image_handle.as_ref().unwrap();
+                    /* let mat = game_state.material_handle.as_ref().unwrap();
+                    let mat = (*mat).clone(); */
+                    let img_tex = game_state.image_handle.as_ref().unwrap();
                     let img_tex = (*img_tex).clone();
                     let mat = materials.add(ColorMaterial {
                         color: Color::rgba(1., 1., 1., 0.),
                         texture: Some(img_tex),
-                    }); */
+                    });
 
                     let dims = td.dims.clone();
                     let uvs = td.uvs.clone();
@@ -193,14 +193,14 @@ pub fn mouse_handling_system(
 pub fn animate_system(
     //commands: &mut Commands,
     time: Res<Time>,
-    q_anim: Query<(Entity, &AnimateAlpha), With<AnimateAlpha>>,
-    //q_mat: Query<&Handle<ColorMaterial>>,
-    //mut materials: ResMut<Assets<ColorMaterial>>,
-    mut q_trans: Query<&mut Transform>,
+    mut q_anim: Query<(Entity, &AnimateAlpha, &mut Sprite), With<AnimateAlpha>>,
+    q_mat: Query<&Handle<ColorMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    //mut q_trans: Query<&mut Transform>,
     //mut q_trans: Query<(Entity, &mut Transform)
 ) {
     let t = time.seconds_since_startup();
-    for (ent, aa) in q_anim.iter() {
+    for (ent, aa, mut spr) in q_anim.iter_mut() {
         let t0 = aa.start_t;
         let t1 = t0 + aa.duration;
         if t > t1 {
@@ -211,21 +211,16 @@ pub fn animate_system(
         }
         let r: f32 = ((t - t0) / aa.duration) as f32;
         //println!("{:.2}", r);
-        /* if let Ok(material_handle) = q_mat.get(ent) {
+        if let Ok(material_handle) = q_mat.get(ent) {
             let mut material = materials.get_mut(&*material_handle).unwrap();
             material.color = Color::rgba(1., 1., 1., r);
-        } */
-        if let Ok(trans_handle) = q_trans.get_mut(ent) {
-            let mut trans = *trans_handle;
-            println!("t0: {:?}", trans);
-            trans.scale *= r;
-            //trans.scale = Vec3::one() * r;
-            //trans.scale.x = r;
-            //trans.scale.y = r;
-            //trans.scale.z = r;
-            //trans.translation = Vec3::zero();
-            //println!("t1: {:?}", trans);
         }
+        spr.size = Vec2::one() * r;
+        /* if let Ok(trans) = q_trans.get_mut(ent) {
+            //let mut trans = trans_handle.get_mut();
+            let mut trans = *trans;
+            trans.scale = Vec3::one() * r;
+        } */
     }
 }
 
