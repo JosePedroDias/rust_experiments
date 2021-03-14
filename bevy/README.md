@@ -25,7 +25,7 @@ to run examples (mostly custom shapes):
 
 ## demo playing session
 
-[<img src="https://i.vimeocdn.com/video/1083654572.jpg?mw=1700&mh=1101&q=70">](https://vimeo.com/523244502)
+[<img src="https://i.vimeocdn.com/video/1084302777.jpg?mw=1700&mh=1101&q=70">](https://vimeo.com/523498310)
 
 or visit [this vimeo playlist](https://vimeo.com/manage/showcases/8210937/info)
 
