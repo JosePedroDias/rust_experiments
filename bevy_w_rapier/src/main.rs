@@ -2,18 +2,23 @@ use bevy::prelude::*;
 use bevy::render::pass::ClearColor;
 use bevy_rapier3d::physics::{
     ColliderHandleComponent,
-    RapierConfiguration,
+    EventQueue,
     RapierPhysicsPlugin,
-    RigidBodyHandleComponent, //EventQueue
+    //RigidBodyHandleComponent,
+    //RapierConfiguration,
 };
-use bevy_rapier3d::rapier::geometry::{ColliderBuilder, ColliderSet};
-//use bevy_rapier3d::rapier::dynamics
 use bevy_rapier3d::rapier::dynamics::{RigidBodyBuilder, RigidBodySet};
+use bevy_rapier3d::rapier::geometry::{
+    ColliderBuilder,
+    ColliderSet,
+    //ShapeType,
+    //BroadPhase
+};
 use bevy_rapier3d::render::RapierRenderPlugin;
-//use bevy_rapier3d::dynamics::{RigidBodyBuilder, RigidBodySet};
-//use bevy_rapier3d::geometry::ColliderSet;
-//use bevy_rapier3d::geometry::BroadPhase;
-//use bevy_rapier3d::geometry::ColliderBuilder;
+
+// Resources
+pub struct Ground;
+pub struct Sphere;
 
 fn main() {
     App::build()
@@ -24,7 +29,7 @@ fn main() {
         .add_startup_system(setup_graphics.system())
         .add_startup_system(setup_physics.system())
         .add_system(bevy::input::system::exit_on_esc_system.system())
-        //.add_system(print_events.system())
+        .add_system(print_events.system())
         .add_system(create_collider_renders_system.system())
         .run();
 }
@@ -46,13 +51,20 @@ fn setup_graphics(commands: &mut Commands) {
 }
 
 fn setup_physics(commands: &mut Commands) {
-    // ground
-    let ground_size = 200.1;
-    let ground_height = 0.1;
-
-    let rigid_body = RigidBodyBuilder::new_static().translation(0.0, -ground_height, 0.0);
-    let collider = ColliderBuilder::cuboid(ground_size, ground_height, ground_size);
-    commands.spawn((rigid_body, collider));
+    {
+        // ground
+        let ground_size = 200.1;
+        let ground_height = 0.1;
+        let rigid_body = RigidBodyBuilder::new_static().translation(0.0, -ground_height, 0.0);
+        let collider = ColliderBuilder::cuboid(ground_size, ground_height, ground_size);
+        commands.spawn((rigid_body, collider)).with(Ground);
+    }
+    {
+        // sphere
+        let rigid_body = RigidBodyBuilder::new_dynamic().translation(0.0, 30.0, 0.0);
+        let collider = ColliderBuilder::ball(1.);
+        commands.spawn((rigid_body, collider)).with(Sphere);
+    }
 
     // cubes
     let num = 3;
@@ -72,7 +84,6 @@ fn setup_physics(commands: &mut Commands) {
                 let y = j as f32 * shift + centery + 3.0;
                 let z = k as f32 * shift - centerz + offset;
 
-                // Build the rigid body.
                 let rigid_body = RigidBodyBuilder::new_dynamic().translation(x, y, z);
                 let collider = ColliderBuilder::cuboid(rad, rad, rad).density(1.0);
                 commands.spawn((rigid_body, collider));
@@ -92,53 +103,33 @@ pub fn create_collider_renders_system(
     colliders: ResMut<ColliderSet>,
     query: Query<(Entity, &ColliderHandleComponent)>,
 ) {
-    let ground_color = Color::rgb(
-        0xF3 as f32 / 255.0,
-        0xD9 as f32 / 255.0,
-        0xB1 as f32 / 255.0,
+    let color1 = Color::rgb(
+        0xFF as f32 / 255.0,
+        0x00 as f32 / 255.0,
+        0x00 as f32 / 255.0,
+    );
+
+    let color2 = Color::rgb(
+        0x00 as f32 / 255.0,
+        0xFF as f32 / 255.0,
+        0x00 as f32 / 255.0,
     );
 
     for (entity, collider) in &mut query.iter() {
         if let Some(collider) = colliders.get(collider.handle()) {
             if let Some(body) = bodies.get(collider.parent()) {
-                let color = if body.is_static() {
-                    ground_color
-                } else {
-                    ground_color
-                };
-                let shape = collider.shape();
+                let color = if body.is_static() { color1 } else { color2 };
+                //let shape = collider.shape();
 
+                //let mesh = if shape.shape_type() == ShapeType::Cuboid { // FAILS?
                 let mesh = Mesh::from(shape::Cube { size: 2.0 });
-
-                /* let mesh = match shape.shape_type() {
-                    ShapeType::Cuboid => Mesh::from(shape::Cube { size: 2.0 }),
-                    ShapeType::Ball => Mesh::from(shape::Icosphere {
-                        subdivisions: 2,
-                        radius: 1.0,
-                    }),
-                }; */
-
-                /*let scale = match shape.shape_type() {
-                    ShapeType::Cuboid => {
-                        let c = shape.as_cuboid().unwrap();
-                        Vec3::from_slice_unaligned(c.half_extents.as_slice())
-                    }
-                    ShapeType::Ball => {
-                        let b = shape.as_ball().unwrap();
-                        Vec3::new(b.radius, b.radius, b.radius)
-                    }
-                } * configuration.scale;*/
-
-                //let b = shape.as_ball().unwrap();
-                //let scale = Vec3::new(b.radius, b.radius, b.radius);
-
+                //} else {
+                /* Mesh::from(shape::Icosphere {
+                    subdivisions: 2,
+                    radius: 1.0,
+                }) */
+                //};
                 let transform = Transform::from_scale(Vec3::one());
-                /*crate::physics::sync_transform(
-                    collider.position_wrt_parent(),
-                    configuration.scale,
-                    &mut transform,
-                );*/
-
                 let pbr = PbrBundle {
                     mesh: meshes.add(mesh),
                     material: materials.add(color.into()),
@@ -152,15 +143,15 @@ pub fn create_collider_renders_system(
     }
 }
 
-/* fn print_events(events: Res<EventQueue>) {
-    while let Ok(intersection_event) = events.intersection_events.pop() {
-        println!("Received intersection event: {:?}", intersection_event);
+fn print_events(events: Res<EventQueue>) {
+    while let Ok(_intersection_event) = events.intersection_events.pop() {
+        //println!("Received intersection event: {:?}", intersection_event);
     }
 
-    while let Ok(contact_event) = events.contact_events.pop() {
-        println!("Received contact event: {:?}", contact_event);
+    while let Ok(_contact_event) = events.contact_events.pop() {
+        //println!("Received contact event: {:?}", contact_event);
     }
-} */
+}
 
 /* fn sys1(q: Query<&RigidBodyHandleComponent>) {
     // RigidBody
