@@ -1,11 +1,8 @@
 use bevy::prelude::*;
 use bevy::render::pass::ClearColor;
 use bevy_rapier3d::physics::{
-    ColliderHandleComponent,
-    EventQueue,
-    RapierPhysicsPlugin,
-    //RigidBodyHandleComponent,
-    //RapierConfiguration,
+    ColliderHandleComponent, EventQueue, RapierConfiguration, RapierPhysicsPlugin,
+    RigidBodyHandleComponent,
 };
 use bevy_rapier3d::rapier::dynamics::{RigidBodyBuilder, RigidBodySet};
 use bevy_rapier3d::rapier::geometry::{
@@ -17,8 +14,9 @@ use bevy_rapier3d::rapier::geometry::{
 use bevy_rapier3d::render::RapierRenderPlugin;
 
 // Resources
-pub struct Ground;
-pub struct Sphere;
+struct Player(f32);
+struct Ground;
+struct Sphere;
 
 fn main() {
     App::build()
@@ -29,8 +27,9 @@ fn main() {
         .add_startup_system(setup_graphics.system())
         .add_startup_system(setup_physics.system())
         .add_system(bevy::input::system::exit_on_esc_system.system())
-        .add_system(print_events.system())
+        //.add_system(print_events.system())
         .add_system(create_collider_renders_system.system())
+        //.add_system(player_movement.system())
         .run();
 }
 
@@ -63,7 +62,10 @@ fn setup_physics(commands: &mut Commands) {
         // sphere
         let rigid_body = RigidBodyBuilder::new_dynamic().translation(0.0, 30.0, 0.0);
         let collider = ColliderBuilder::ball(1.);
-        commands.spawn((rigid_body, collider)).with(Sphere);
+        commands
+            .spawn((rigid_body, collider))
+            .with(Sphere)
+            .with(Player(300.0));
     }
 
     // cubes
@@ -168,5 +170,32 @@ fn print_events(events: Res<EventQueue>) {
     //for body in rigid_bodies./ {}
     if let Some(rb) = rigid_bodies.get_mut(rigid_body_component.handle()) {
         rb.set_linvel(move_delta * player.0, true);
+    }
+} */
+
+/* fn player_movement(
+    keyboard_input: Res<Input<KeyCode>>,
+    rapier_parameters: Res<RapierConfiguration>,
+    mut rigid_bodies: ResMut<RigidBodySet>,
+    player_info: Query<(&Player, &RigidBodyHandleComponent)>,
+) {
+    for (player, rigid_body_component) in player_info.iter() {
+        let x_axis = -(keyboard_input.pressed(KeyCode::A) as i8)
+            + (keyboard_input.pressed(KeyCode::D) as i8);
+        let y_axis = -(keyboard_input.pressed(KeyCode::S) as i8)
+            + (keyboard_input.pressed(KeyCode::W) as i8);
+
+        let mut move_delta = Vec2::new(x_axis as f32, y_axis as f32);
+        if move_delta != Vec2::zero() {
+            // Note that the RapierConfiguration::Scale factor is also used here to transform
+            // the move_delta from: 'pixels/second' to 'physics_units/second'
+            move_delta /= move_delta.length() * rapier_parameters.scale;
+        }
+
+        // Update the velocity on the rigid_body_component,
+        // the bevy_rapier plugin will update the Sprite transform.
+        if let Some(rb) = rigid_bodies.get_mut(rigid_body_component.handle()) {
+            rb.set_linvel(move_delta * player.0, true);
+        }
     }
 } */
