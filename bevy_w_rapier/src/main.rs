@@ -1,22 +1,28 @@
 use bevy::prelude::*;
 use bevy::render::pass::ClearColor;
 use bevy_rapier3d::physics::{
-    ColliderHandleComponent, EventQueue, RapierConfiguration, RapierPhysicsPlugin,
+    ColliderHandleComponent,
+    RapierPhysicsPlugin,
     RigidBodyHandleComponent,
+    //EventQueue,
+    //RapierConfiguration
 };
 use bevy_rapier3d::rapier::dynamics::{RigidBodyBuilder, RigidBodySet};
 use bevy_rapier3d::rapier::geometry::{
     ColliderBuilder,
     ColliderSet,
     //ShapeType,
-    //BroadPhase
+    //BroadPhase,
 };
+use bevy_rapier3d::rapier::na::Vector3;
 use bevy_rapier3d::render::RapierRenderPlugin;
 
 // Resources
 struct Player(f32);
-struct Ground;
-struct Sphere;
+pub enum MyShape {
+    XBox(f32, f32, f32),
+    Sphere(f32),
+}
 
 fn main() {
     App::build()
@@ -27,9 +33,9 @@ fn main() {
         .add_startup_system(setup_graphics.system())
         .add_startup_system(setup_physics.system())
         .add_system(bevy::input::system::exit_on_esc_system.system())
-        //.add_system(print_events.system())
         .add_system(create_collider_renders_system.system())
-        //.add_system(player_movement.system())
+        .add_system(move_system.system())
+        //.add_system(print_events.system())
         .run();
 }
 
@@ -56,7 +62,11 @@ fn setup_physics(commands: &mut Commands) {
         let ground_height = 0.1;
         let rigid_body = RigidBodyBuilder::new_static().translation(0.0, -ground_height, 0.0);
         let collider = ColliderBuilder::cuboid(ground_size, ground_height, ground_size);
-        commands.spawn((rigid_body, collider)).with(Ground);
+        commands.spawn((rigid_body, collider)).with(MyShape::XBox(
+            ground_size,
+            ground_height,
+            ground_size,
+        ));
     }
     {
         // sphere
@@ -64,7 +74,7 @@ fn setup_physics(commands: &mut Commands) {
         let collider = ColliderBuilder::ball(1.);
         commands
             .spawn((rigid_body, collider))
-            .with(Sphere)
+            .with(MyShape::Sphere(1.))
             .with(Player(300.0));
     }
 
@@ -88,7 +98,11 @@ fn setup_physics(commands: &mut Commands) {
 
                 let rigid_body = RigidBodyBuilder::new_dynamic().translation(x, y, z);
                 let collider = ColliderBuilder::cuboid(rad, rad, rad).density(1.0);
-                commands.spawn((rigid_body, collider));
+                commands.spawn((rigid_body, collider)).with(MyShape::XBox(
+                    rad * 2.0,
+                    rad * 2.0,
+                    rad * 2.0,
+                ));
             }
         }
 
@@ -100,10 +114,9 @@ pub fn create_collider_renders_system(
     commands: &mut Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    //configuration: Res<RapierConfiguration>,
     bodies: Res<RigidBodySet>,
     colliders: ResMut<ColliderSet>,
-    query: Query<(Entity, &ColliderHandleComponent)>,
+    query: Query<(Entity, &ColliderHandleComponent, &MyShape)>,
 ) {
     let color1 = Color::rgb(
         0xFF as f32 / 255.0,
@@ -117,20 +130,20 @@ pub fn create_collider_renders_system(
         0x00 as f32 / 255.0,
     );
 
-    for (entity, collider) in &mut query.iter() {
+    for (entity, collider, ms) in query.iter() {
+        //if let Ok((health, mut transform)) = query.get_mut(entity) {
         if let Some(collider) = colliders.get(collider.handle()) {
             if let Some(body) = bodies.get(collider.parent()) {
                 let color = if body.is_static() { color1 } else { color2 };
                 //let shape = collider.shape();
 
-                //let mesh = if shape.shape_type() == ShapeType::Cuboid { // FAILS?
-                let mesh = Mesh::from(shape::Cube { size: 2.0 });
-                //} else {
-                /* Mesh::from(shape::Icosphere {
-                    subdivisions: 2,
-                    radius: 1.0,
-                }) */
-                //};
+                let mesh = match ms {
+                    MyShape::XBox(a, b, c) => Mesh::from(shape::Box::new(*a, *b, *c)),
+                    MyShape::Sphere(r) => Mesh::from(shape::Icosphere {
+                        subdivisions: 2,
+                        radius: *r,
+                    }),
+                };
                 let transform = Transform::from_scale(Vec3::one());
                 let pbr = PbrBundle {
                     mesh: meshes.add(mesh),
@@ -145,57 +158,32 @@ pub fn create_collider_renders_system(
     }
 }
 
-fn print_events(events: Res<EventQueue>) {
+/* fn print_events(events: Res<EventQueue>) {
     while let Ok(_intersection_event) = events.intersection_events.pop() {
-        //println!("Received intersection event: {:?}", intersection_event);
+        println!("Received intersection event: {:?}", intersection_event);
     }
 
     while let Ok(_contact_event) = events.contact_events.pop() {
-        //println!("Received contact event: {:?}", contact_event);
+        println!("Received contact event: {:?}", contact_event);
+    }
+} */
+
+fn move_system(
+    keyboard_input: Res<Input<KeyCode>>,
+    q_player: Query<(&Player, &RigidBodyHandleComponent)>,
+    mut rigid_bodies: ResMut<RigidBodySet>,
+) {
+    let x_axis =
+        -(keyboard_input.pressed(KeyCode::A) as i8) + (keyboard_input.pressed(KeyCode::D) as i8);
+    let z_axis =
+        -(keyboard_input.pressed(KeyCode::W) as i8) + (keyboard_input.pressed(KeyCode::S) as i8);
+    let move_delta = Vector3::new(x_axis as f32, 0.0, z_axis as f32);
+    for (player, rigid_body_component) in q_player.iter() {
+        if let Some(rb) = rigid_bodies.get_mut(rigid_body_component.handle()) {
+            if move_delta.x != 0.0 || move_delta.z != 0.0 {
+                //rb.set_linvel(move_delta * player.0, true);
+                rb.apply_force(move_delta * player.0, true);
+            }
+        }
     }
 }
-
-/* fn sys1(q: Query<&RigidBodyHandleComponent>) {
-    // RigidBody
-    // Collider
-    // Joint
-    for rb in q.iter() {
-        let x = &*rb;
-        println!("{:?}", x);
-    }
-} */
-
-/* fn my_system(mut broad_phase: ResMut<BroadPhase>, rigid_bodies: Res<RigidBodySet>) {
-    //println!("{:?}", rigid_bodies.bodies.len());
-    //for body in rigid_bodies./ {}
-    if let Some(rb) = rigid_bodies.get_mut(rigid_body_component.handle()) {
-        rb.set_linvel(move_delta * player.0, true);
-    }
-} */
-
-/* fn player_movement(
-    keyboard_input: Res<Input<KeyCode>>,
-    rapier_parameters: Res<RapierConfiguration>,
-    mut rigid_bodies: ResMut<RigidBodySet>,
-    player_info: Query<(&Player, &RigidBodyHandleComponent)>,
-) {
-    for (player, rigid_body_component) in player_info.iter() {
-        let x_axis = -(keyboard_input.pressed(KeyCode::A) as i8)
-            + (keyboard_input.pressed(KeyCode::D) as i8);
-        let y_axis = -(keyboard_input.pressed(KeyCode::S) as i8)
-            + (keyboard_input.pressed(KeyCode::W) as i8);
-
-        let mut move_delta = Vec2::new(x_axis as f32, y_axis as f32);
-        if move_delta != Vec2::zero() {
-            // Note that the RapierConfiguration::Scale factor is also used here to transform
-            // the move_delta from: 'pixels/second' to 'physics_units/second'
-            move_delta /= move_delta.length() * rapier_parameters.scale;
-        }
-
-        // Update the velocity on the rigid_body_component,
-        // the bevy_rapier plugin will update the Sprite transform.
-        if let Some(rb) = rigid_bodies.get_mut(rigid_body_component.handle()) {
-            rb.set_linvel(move_delta * player.0, true);
-        }
-    }
-} */
