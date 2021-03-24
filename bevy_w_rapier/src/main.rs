@@ -47,7 +47,7 @@ fn setup_graphics(commands: &mut Commands) {
         })
         .spawn(Camera3dBundle {
             transform: Transform::from_matrix(Mat4::face_toward(
-                Vec3::new(-30.0, 30.0, 100.0),
+                Vec3::new(-20.0, 20.0, 50.0),
                 Vec3::new(0.0, 10.0, 0.0),
                 Vec3::new(0.0, 1.0, 0.0),
             )),
@@ -58,7 +58,7 @@ fn setup_graphics(commands: &mut Commands) {
 fn setup_physics(commands: &mut Commands) {
     {
         // ground
-        let ground_size = 200.1;
+        let ground_size = 200.0;
         let ground_height = 0.1;
         let rigid_body = RigidBodyBuilder::new_static().translation(0.0, -ground_height, 0.0);
         let collider = ColliderBuilder::cuboid(ground_size, ground_height, ground_size);
@@ -74,13 +74,15 @@ fn setup_physics(commands: &mut Commands) {
         let collider = ColliderBuilder::ball(1.);
         commands
             .spawn((rigid_body, collider))
-            .with(MyShape::Sphere(1.))
-            .with(Player(300.0));
+            .with(MyShape::Sphere(1.3))
+            .with(Player(200.0));
     }
 
     // cubes
     let num = 3;
-    let rad = 1.0;
+    let num2 = 2;
+    let num3 = 1;
+    let rad = 1.5;
 
     let shift = rad * 2.0 + rad;
     let centerx = shift * (num / 2) as f32;
@@ -89,15 +91,15 @@ fn setup_physics(commands: &mut Commands) {
 
     let mut offset = -(num as f32) * (rad * 2.0 + rad) * 0.5;
 
-    for j in 0usize..2 {
+    for j in 0usize..num2 {
         for i in 0..num {
-            for k in 0usize..num {
+            for k in 0usize..num3 {
                 let x = i as f32 * shift - centerx + offset;
                 let y = j as f32 * shift + centery + 3.0;
                 let z = k as f32 * shift - centerz + offset;
 
                 let rigid_body = RigidBodyBuilder::new_dynamic().translation(x, y, z);
-                let collider = ColliderBuilder::cuboid(rad, rad, rad).density(1.0);
+                let collider = ColliderBuilder::cuboid(rad, rad, rad).density(0.5);
                 commands.spawn((rigid_body, collider)).with(MyShape::XBox(
                     rad * 2.0,
                     rad * 2.0,
