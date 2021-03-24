@@ -77,6 +77,13 @@ fn setup_physics(commands: &mut Commands) {
             .with(MyShape::Sphere(1.3))
             .with(Player(200.0));
     }
+    {
+        let rigid_body = RigidBodyBuilder::new_static().translation(-20.0, 1.0, -5.0);
+        let collider = ColliderBuilder::cuboid(1.0, 2.0, 3.0);
+        commands
+            .spawn((rigid_body, collider))
+            .with(MyShape::XBox(1.0, 2.0, 3.0));
+    }
 
     // cubes
     let num = 3;
