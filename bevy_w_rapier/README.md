@@ -11,9 +11,11 @@
 - https://rapier.rs/docs/user_guides/rust_bevy_plugin/the_rapier_physics_plugin
 - https://github.com/dimforge/bevy_rapier
 - https://rapier.rs/docs/
+    - https://rapier.rs/docs/user_guides/rust/joint_constraints
 - https://docs.rs/rapier3d/0.6.1/rapier3d/
     - https://docs.rs/rapier3d/0.6.1/rapier3d/dynamics/struct.RigidBodyHandle.html
     - https://docs.rs/rapier3d/0.6.1/rapier3d/dynamics/struct.RigidBody.html
+    - https://docs.rs/rapier3d/0.6.1/rapier3d/dynamics/struct.RevoluteJoint.html
 - https://nalgebra.org/docs/
     - https://nalgebra.org/docs/user_guide/vectors_and_matrices
 
