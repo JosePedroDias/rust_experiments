@@ -1,55 +1,12 @@
+use super::cylinder::generate_cylinder;
+use super::resources::*;
 use bevy::prelude::*;
-use bevy::render::pass::ClearColor;
-use bevy_rapier3d::physics::{
-    ColliderHandleComponent,
-    RapierPhysicsPlugin,
-    RigidBodyHandleComponent,
-    //EventQueue,
-    //RapierConfiguration
-};
+use bevy_rapier3d::physics::{ColliderHandleComponent, RigidBodyHandleComponent};
 use bevy_rapier3d::rapier::dynamics::{RigidBodyBuilder, RigidBodySet};
-use bevy_rapier3d::rapier::geometry::{
-    ColliderBuilder,
-    ColliderSet,
-    //ShapeType,
-    //BroadPhase,
-};
+use bevy_rapier3d::rapier::geometry::{ColliderBuilder, ColliderSet};
 use bevy_rapier3d::rapier::na::Vector3;
-use bevy_rapier3d::render::RapierRenderPlugin;
 
-use bevy::{
-    render::mesh::{Indices, Mesh},
-    render::pipeline::PrimitiveTopology,
-};
-
-//use rapier3d::math::Rotation;
-
-const PI2: f32 = std::f32::consts::PI * 2.0;
-
-// Resources
-struct Player(f32);
-pub enum MyShape {
-    Box(f32, f32, f32),
-    Sphere(f32),
-    Cylinder(f32, f32),
-}
-
-fn main() {
-    App::build()
-        .add_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
-        .add_plugins(DefaultPlugins)
-        .add_plugin(RapierPhysicsPlugin)
-        .add_plugin(RapierRenderPlugin)
-        .add_startup_system(setup_graphics.system())
-        .add_startup_system(setup_physics.system())
-        .add_system(bevy::input::system::exit_on_esc_system.system())
-        .add_system(create_collider_renders_system.system())
-        .add_system(move_system.system())
-        //.add_system(print_events.system())
-        .run();
-}
-
-fn setup_graphics(commands: &mut Commands) {
+pub fn setup_graphics(commands: &mut Commands) {
     commands
         .spawn(LightBundle {
             transform: Transform::from_translation(Vec3::new(1000.0, 100.0, 2000.0)),
@@ -65,106 +22,7 @@ fn setup_graphics(commands: &mut Commands) {
         });
 }
 
-fn generate_cylinder(half_height: f32, radius: f32, steps: usize) -> Mesh {
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
-
-    let n_vertices = 2 + steps * 4;
-    let n_triangles = (steps * 4) as u32;
-
-    // TODO UVS
-
-    let h2 = half_height;
-    /*
-    vertices:
-        ctr -y
-        ctr +y
-        bottom circ
-        top circ
-        sides (2 circs)
-    triangles:
-        bottom
-        top
-        side (2 tris at a time)
-     */
-
-    let mut positions: Vec<[f32; 3]> = Vec::with_capacity(n_vertices);
-    let mut normals: Vec<[f32; 3]> = Vec::with_capacity(n_vertices);
-    let mut uvs: Vec<[f32; 2]> = Vec::with_capacity(n_vertices);
-    let mut indices: Vec<u32> = Vec::with_capacity((n_triangles as usize) * 3);
-
-    positions.push([0., -h2, 0.]);
-    normals.push([0., -1., 0.]);
-    uvs.push([0., 0.]);
-
-    positions.push([0., h2, 0.]);
-    normals.push([0., 1., 0.]);
-    uvs.push([0., 0.]);
-
-    for nth in 0..2 {
-        let y = if nth == 0 { -h2 } else { h2 };
-        let ny = if nth == 0 { -1. } else { 1. };
-        for i in 0..steps {
-            let angle = (i as f32) / (steps as f32) * PI2;
-            let c = angle.cos();
-            let s = angle.sin();
-            let x = radius * c;
-            let z = radius * s;
-            positions.push([x, y, z]);
-            normals.push([0., ny, 0.]);
-            uvs.push([0., 0.]);
-        }
-    }
-
-    for nth in 0..2 {
-        let y = if nth == 0 { -h2 } else { h2 };
-        for i in 0..steps {
-            let angle = (i as f32) / (steps as f32) * PI2;
-            let c = angle.cos();
-            let s = angle.sin();
-            let x = radius * c;
-            let z = radius * s;
-            positions.push([x, y, z]);
-            normals.push([c, 0., s]);
-            uvs.push([0., 0.]);
-        }
-    }
-
-    let s0 = 2 as u32;
-    let s1 = 2 + steps as u32;
-    let s2 = 2 + (steps * 2) as u32;
-    let s3 = 2 + (steps * 3) as u32;
-
-    // bottom and top
-    for i in 0..n_triangles {
-        indices.push(i % n_triangles + s0);
-        indices.push((i + 1) % n_triangles + s0);
-        indices.push(0);
-
-        indices.push(i % n_triangles + s1);
-        indices.push((i + 1) % n_triangles + s1);
-        indices.push(1);
-    }
-
-    // sides
-    for i in 0..n_triangles {
-        indices.push(i % n_triangles + s3);
-        indices.push((i + 1) % n_triangles + s2);
-        indices.push(i % n_triangles + s2);
-
-        indices.push(i % n_triangles + s3);
-        indices.push((i + 1) % n_triangles + s3);
-        indices.push((i + 1) % n_triangles + s2);
-    }
-
-    mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, positions);
-    mesh.set_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
-    mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
-    mesh.set_indices(Some(Indices::U32(indices)));
-
-    mesh
-}
-
-fn setup_physics(commands: &mut Commands) {
+pub fn setup_physics(commands: &mut Commands) {
     {
         // ground
         let ground_size = 200.0;
@@ -295,17 +153,7 @@ pub fn create_collider_renders_system(
     }
 }
 
-/* fn print_events(events: Res<EventQueue>) {
-    while let Ok(_intersection_event) = events.intersection_events.pop() {
-        println!("Received intersection event: {:?}", intersection_event);
-    }
-
-    while let Ok(_contact_event) = events.contact_events.pop() {
-        println!("Received contact event: {:?}", contact_event);
-    }
-} */
-
-fn move_system(
+pub fn move_system(
     keyboard_input: Res<Input<KeyCode>>,
     q_player: Query<(&Player, &RigidBodyHandleComponent)>,
     mut rigid_bodies: ResMut<RigidBodySet>,
@@ -324,3 +172,13 @@ fn move_system(
         }
     }
 }
+
+/* fn print_events(events: Res<EventQueue>) {
+    while let Ok(_intersection_event) = events.intersection_events.pop() {
+        println!("Received intersection event: {:?}", intersection_event);
+    }
+
+    while let Ok(_contact_event) = events.contact_events.pop() {
+        println!("Received contact event: {:?}", contact_event);
+    }
+} */
