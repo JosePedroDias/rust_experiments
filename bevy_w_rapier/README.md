@@ -10,8 +10,12 @@
 
 ## docs:
 - https://rapier.rs/docs/user_guides/rust_bevy_plugin/the_rapier_physics_plugin
-- https://github.com/dimforge/bevy_rapier
+- https://docs.rs/bevy/0.4.0/bevy/
     - https://github.com/bevyengine/bevy/blob/main/examples/3d/update_gltf_scene.rs
+    - https://docs.rs/bevy/0.4.0/bevy/prelude/struct.Camera3dBundle.html
+    - https://github.com/mcpar-land/bevy_fly_camera/blob/master/src/lib.rs
+    - https://github.com/SarthakSingh31/bevy_4x_camera/blob/master/src/lib.rs
+- https://github.com/dimforge/bevy_rapier
     - https://github.com/bevyengine/bevy/issues/427#issuecomment-792363351
 - https://rapier.rs/docs/
     - https://rapier.rs/docs/user_guides/rust/joint_constraints

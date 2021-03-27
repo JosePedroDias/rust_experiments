@@ -1,12 +1,17 @@
 use bevy::prelude::*;
 use bevy::render::pass::ClearColor;
 use bevy_rapier3d::physics::RapierPhysicsPlugin;
+use bevy_w_rapier::resources::*;
 use bevy_w_rapier::systems::*;
 
-use bevy_rapier3d::render::RapierRenderPlugin;
+//use bevy_rapier3d::render::RapierRenderPlugin;
 
 fn main() {
     App::build()
+        .add_resource(CameraState {
+            from: Vec3::new(-20., 20., 50.),
+            to: Vec3::new(0., 0., 0.),
+        })
         .add_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .add_resource(WindowDescriptor {
             title: "bevy with rapier".to_string(),
@@ -17,7 +22,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(RapierPhysicsPlugin)
-        .add_plugin(RapierRenderPlugin)
+        //.add_plugin(RapierRenderPlugin)
         .add_startup_system(setup_scene.system())
         .add_system(rotator_system.system())
         .add_system(move_system.system())
