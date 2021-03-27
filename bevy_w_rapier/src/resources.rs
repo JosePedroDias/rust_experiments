@@ -1,3 +1,6 @@
+pub struct Camera;
+pub struct Rotates;
+
 pub struct Player(pub f32);
 
 pub enum MyShape {

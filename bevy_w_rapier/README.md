@@ -5,11 +5,14 @@
     - https://github.com/dimforge/bevy_rapier/blob/master/bevy_rapier3d/examples/joints3.rs
     - https://github.com/dimforge/bevy_rapier/blob/master/bevy_rapier3d/examples/static_trimesh3.rs
     - https://github.com/dimforge/bevy_rapier/blob/master/bevy_rapier3d/examples/contact_filter3.rs
+    - https://github.com/dimforge/bevy_rapier/blob/master/src/render/systems.rs
 - https://github.com/Bobox214/Kataster/blob/main/src/player.rs
 
 ## docs:
 - https://rapier.rs/docs/user_guides/rust_bevy_plugin/the_rapier_physics_plugin
 - https://github.com/dimforge/bevy_rapier
+    - https://github.com/bevyengine/bevy/blob/main/examples/3d/update_gltf_scene.rs
+    - https://github.com/bevyengine/bevy/issues/427#issuecomment-792363351
 - https://rapier.rs/docs/
     - https://rapier.rs/docs/user_guides/rust/joint_constraints
 - https://docs.rs/rapier3d/0.6.1/rapier3d/
