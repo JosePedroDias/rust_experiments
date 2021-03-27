@@ -1,10 +1,10 @@
 //use super::cylinder::generate_cylinder;
 use super::resources::*;
 use bevy::prelude::*;
-use bevy_rapier3d::physics::RigidBodyHandleComponent;
-use bevy_rapier3d::rapier::dynamics::{RigidBodyBuilder, RigidBodySet};
+use bevy_rapier3d::physics::{JointBuilderComponent, RigidBodyHandleComponent};
+use bevy_rapier3d::rapier::dynamics::{BallJoint, RevoluteJoint, RigidBodyBuilder, RigidBodySet};
 use bevy_rapier3d::rapier::geometry::ColliderBuilder;
-use bevy_rapier3d::rapier::na::Vector3;
+use bevy_rapier3d::rapier::na::{Point3, Vector3};
 
 pub fn setup_scene(
     commands: &mut Commands,
@@ -32,22 +32,9 @@ pub fn setup_scene(
     // empty, #Scene0, #Mesh0/Cube
     /* commands
     .spawn_scene(_asset_server.load("alpine2.gltf"))
-    //.spawn_scene(_asset_server.load("simplest_car.glb"))
     .with(Rotates); */
 
     //return;
-
-    /*
-    box:
-        semi-sizes: 4 / 2 / 2
-        position: 0, 2, 0
-    wheels (x4):
-        semi-height: 0.25
-        radius: 1
-        position: 3, 1, 2.5
-    revolute joints (x4)
-    a way to rotate the wheel joints relative to the main body
-    */
 
     {
         // ground
@@ -65,9 +52,36 @@ pub fn setup_scene(
         };
         commands.spawn((rigid_body, collider, pbr));
     }
+
+    /* // Static rigid-body with a cuboid shape.
+    let rigid_body1 = RigidBodyBuilder::new_static();
+    let collider1 = ColliderBuilder::cuboid(10.0, 1.0, 10.0);
+    // Keep the entity identifier.
+    let entity1 = commands
+        .spawn((rigid_body1, collider1))
+        .current_entity()
+        .unwrap();
+
+    // Dynamic rigid-body with ball shape.
+    let rigid_body2 = RigidBodyBuilder::new_dynamic().translation(0.0, 3.0, 0.0);
+    let collider2 = ColliderBuilder::ball(0.5);
+    // Keep the entity identifier.
+    let entity2 = commands
+        .spawn((rigid_body2, collider2))
+        .current_entity()
+        .unwrap(); */
+
+    // Create the joint.
+    //let joint_params = BallJoint::new(Point3::origin(), Point3::new(0.0, -3.0, 0.0));
+    //let joint_builder_component = JointBuilderComponent::new(joint_params, entity1, entity2);
+    //commands.spawn((joint_builder_component,));
+
+    //return;
+
+    let box_ent: Entity;
     {
         // box
-        let rigid_body = RigidBodyBuilder::new_dynamic().translation(0., 2., 0.);
+        let rigid_body = RigidBodyBuilder::new_dynamic().translation(0., 3.5, 0.);
         let w = 4.;
         let h = 2.;
         let d = 2.;
@@ -79,51 +93,33 @@ pub fn setup_scene(
             material: materials.add(color.into()),
             ..Default::default()
         };
-        commands.spawn((rigid_body, collider, pbr));
-    }
-    /* {
-        // wheel
-        let h2 = 0.25;
-        let r = 1.;
-        let rigid_body = RigidBodyBuilder::new_dynamic().translation(3., 10., 2.5);
-        //let collider = ColliderBuilder::cylinder(h2, r); // along the YY axis
-        let collider = ColliderBuilder::ball(r);
-        let color = Color::rgb(1., 1., 0.);
-        //let mesh = generate_cylinder(h2, r, 16);
-        //let mesh = Mesh::from(shape::Box::new(r, r, r));
-        let mesh = Mesh::from(shape::Cube { size: r });
-        /* let mesh = Mesh::from(shape::Icosphere {
-            subdivisions: 2,
-            radius: r,
-        }); */
-        let pbr = PbrBundle {
-            mesh: meshes.add(mesh),
-            material: materials.add(color.into()),
-            ..Default::default()
-        };
-
-        commands.spawn((rigid_body, collider, pbr));
-        //.with(Player(200.0));
-    } */
-    {
-        // sphere
-        let r = 1.0;
-        let rigid_body = RigidBodyBuilder::new_dynamic().translation(0., 30., 0.);
-        let collider = ColliderBuilder::ball(r);
-        let color = Color::rgb(1., 0., 0.);
-        let mesh = Mesh::from(shape::Icosphere {
-            subdivisions: 2,
-            radius: r,
-        });
-        let pbr = PbrBundle {
-            mesh: meshes.add(mesh),
-            material: materials.add(color.into()),
-            ..Default::default()
-        };
-
         commands
             .spawn((rigid_body, collider, pbr))
-            .with(Player(200.0));
+            .with(Player(2000.0));
+
+        box_ent = commands.current_entity().unwrap();
+    }
+
+    for zs in vec![-1., 1.] {
+        for xs in vec![-1., 1.] {
+            // 4 wheels
+            let r = 1.;
+            let px = 3. * xs;
+            let py = 1.;
+            let pz = 3.5 * zs;
+            let rigid_body = RigidBodyBuilder::new_dynamic().translation(px, py, pz);
+            let collider = ColliderBuilder::ball(r);
+            commands.spawn((rigid_body, collider));
+
+            let wheel_ent = commands.current_entity().unwrap();
+
+            let o = Point3::origin();
+            let z = Vector3::z_axis();
+            let p_ = Point3::new(-px, -py - 1.0, -pz);
+
+            let rev_joint = RevoluteJoint::new(p_, z, o, z);
+            commands.spawn((JointBuilderComponent::new(rev_joint, box_ent, wheel_ent),));
+        }
     }
 }
 
@@ -145,25 +141,6 @@ pub fn move_system(
         }
     }
 }
-
-/* pub fn directing_system(
-    keyboard_input: Res<Input<KeyCode>>,
-    q_player: Query<(&Player, &RigidBodyHandleComponent)>,
-    mut rigid_bodies: ResMut<RigidBodySet>,
-) {
-    let x_axis =
-        -(keyboard_input.pressed(KeyCode::NU) as i8) + (keyboard_input.pressed(KeyCode::D) as i8);
-    let z_axis =
-        -(keyboard_input.pressed(KeyCode::W) as i8) + (keyboard_input.pressed(KeyCode::S) as i8);
-    let move_delta = Vector3::new(x_axis as f32, 0., z_axis as f32);
-    for (player, rigid_body_component) in q_player.iter() {
-        if let Some(rb) = rigid_bodies.get_mut(rigid_body_component.handle()) {
-            if move_delta.x != 0. || move_delta.z != 0. {
-                rb.apply_force(move_delta * player.0, true);
-            }
-        }
-    }
-} */
 
 pub fn rotator_system(time: Res<Time>, mut query: Query<&mut Transform, With<Rotates>>) {
     for mut transform in query.iter_mut() {
